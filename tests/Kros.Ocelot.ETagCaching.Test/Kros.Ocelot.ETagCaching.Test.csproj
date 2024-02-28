@@ -2,4 +2,7 @@
   <PropertyGroup>
     <RootNamespace>Kros.Ocelot.ETagCaching.Test</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Kros.Ocelot.ETagCaching\Kros.Ocelot.ETagCaching.csproj" />
+  </ItemGroup>
 </Project>
