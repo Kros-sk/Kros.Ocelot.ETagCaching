@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Kros.Ocelot.ETagCaching.Test</RootNamespace>
+  </PropertyGroup>
+</Project>

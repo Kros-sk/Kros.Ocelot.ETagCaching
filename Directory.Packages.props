@@ -1,0 +1,7 @@
+<Project>
+  <ItemGroup>
+    <!-- Please keep this file organized alphabetically. -->
+    <PackageVersion Include="Roslynator.Analyzers" Version="4.11.0" />
+    <!-- Please keep this file organized alphabetically. -->
+  </ItemGroup>
+</Project>

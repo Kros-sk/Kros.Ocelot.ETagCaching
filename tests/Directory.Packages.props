@@ -1,0 +1,24 @@
+<Project>
+  <ItemGroup>
+    <PackageVersion Include="AutoBogus" Version="2.13.1" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.0" />
+    <PackageVersion Include="FluentAssertions" Version="6.12.0" />
+    <PackageVersion Include="HtmlAgilityPack" Version="1.11.23" />
+    <PackageVersion Include="Kros.AspNetCore" Version="4.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageVersion Include="NSubstitute" Version="5.1.0" />
+    <PackageVersion Include="NSubstitute.Analyzers.CSharp" Version="1.0.16" />
+    <PackageVersion Include="Roslynator.Analyzers" Version="4.7.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageVersion Include="WireMock.Net" Version="1.5.13" />
+    <PackageVersion Include="xunit" Version="2.6.4" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.6" />
+  </ItemGroup>
+</Project>
