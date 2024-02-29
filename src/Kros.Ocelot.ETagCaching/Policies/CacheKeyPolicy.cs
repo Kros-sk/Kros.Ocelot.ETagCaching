@@ -1,19 +1,24 @@
-﻿namespace Kros.Ocelot.ETagCaching.Policies;
+﻿using Ocelot.Request.Middleware;
 
-internal sealed class CacheKeyPolicy : IETagCachePolicy
+namespace Kros.Ocelot.ETagCaching.Policies;
+
+internal sealed class CacheKeyPolicy(Func<DownstreamRequest, string> keyGenerator) : IETagCachePolicy
 {
+    private readonly Func<DownstreamRequest, string> _keyGenerator = keyGenerator;
+
     public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        context.CacheKey = _keyGenerator(context.DownstreamRequest);
+        return ValueTask.CompletedTask;
     }
 
     public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return ValueTask.CompletedTask;
     }
 
     public ValueTask ServeDownstreamResponseAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return ValueTask.CompletedTask;
     }
 }
