@@ -2,7 +2,7 @@
 
 namespace Kros.Ocelot.ETagCaching.Test.Policies;
 
-public class TagsPolicyShould
+public class TagTemplatesPolicyShould
 {
     [Fact]
     public async Task AddTagsToContext()

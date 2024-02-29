@@ -75,9 +75,10 @@ builder.Services.AddOcelotETagCaching((c) =>
             p.Expire(TimeSpan.FromMinutes(5));
             p.TagTemplates("product:{tenantId}:{id}", "tenant:{tenantId}:all", "all");
 
-            p.WithCacheKeyGenerator(context => context.Request.Query["id"]); // 👈 Custom cache key
-            p.WithETag(context => new($"\"{Guid.NewGuid()}\"")); // 👈 Custom etag
-            p.WithCacheControl(context =>  new(){Public = false}); // 👈 Custom cache control
+            p.CacheKey(context => context.Request.Query["id"]); // 👈 Custom cache key
+            p.ETag(context => new($"\"{Guid.NewGuid()}\"")); // 👈 Custom etag
+            p.CacheControl(context =>  new(){Public = false}); // 👈 Custom cache control
+            p.StatusCode(222); // 👈 Custom status code
         });
     }
 );
@@ -106,32 +107,6 @@ app.UseOcelot(c =>
     }).Wait();
 
 app.Run();
-```
-
-Zjednodušenú konfiguráciu policies by bolo možné aj cez `appsettings.json`:
-
-```json
-{
-    "ETagCachingPolicies": {
-        "getAllProducts": {
-            "Expire": "00:05:00",
-            "TagTemplates": [
-                "products:{tenantId}",
-                "all",
-                "tenantAll:{tenantId}"
-            ]
-        },
-        "getProduct": {
-            "Expire": "00:05:00",
-            "TagTemplates": [
-                "products:{tenantId}",
-                "product:{id}",
-                "tenantAll:{tenantId}",
-                "all"
-            ]
-        }
-    }
-}
 ```
 
 ## Invalidácia
