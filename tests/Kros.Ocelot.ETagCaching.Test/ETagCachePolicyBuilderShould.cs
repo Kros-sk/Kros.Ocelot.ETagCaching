@@ -19,7 +19,8 @@ public class ETagCachePolicyBuilderShould
             .ETag(_ => new EntityTagHeaderValue("\"123\""))
             .CacheKey(_ => "cacheKey")
             .TagTemplates("tag1{tenantId}", "tag2{id}")
-            .StatusCode(222);
+            .StatusCode(222)
+            .CacheEntryExtraProp(props => props.Add("key1", "value1"));
 
         var policy = builder.Build();
         var context = ETagCacheContextFactory.CreateContext();
@@ -34,6 +35,7 @@ public class ETagCachePolicyBuilderShould
         context.CacheKey.Should().Be("cacheKey");
         context.TagTemplates.Should().BeEquivalentTo(["tag1{tenantId}", "tag2{id}"]);
         context.StatusCode.Should().Be(222);
+        context.CacheEntryExtraProps.Should().Contain("key1", "value1");
     }
 
     [Fact]
