@@ -1,19 +1,24 @@
-﻿namespace Kros.Ocelot.ETagCaching.Policies;
+﻿using Microsoft.Net.Http.Headers;
 
-internal sealed class ETagPolicy : IETagCachePolicy
+namespace Kros.Ocelot.ETagCaching.Policies;
+
+internal sealed class ETagPolicy(Func<ETagCacheContext, EntityTagHeaderValue> etagGenerator) : IETagCachePolicy
 {
+    private readonly Func<ETagCacheContext, EntityTagHeaderValue> _etagGenerator = etagGenerator;
+
     public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        context.ETag = _etagGenerator(context);
+        return ValueTask.CompletedTask;
     }
 
     public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return ValueTask.CompletedTask;
     }
 
     public ValueTask ServeDownstreamResponseAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return ValueTask.CompletedTask;
     }
 }
