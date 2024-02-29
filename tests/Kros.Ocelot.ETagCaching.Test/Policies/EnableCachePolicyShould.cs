@@ -31,7 +31,7 @@ public class EnableCachePolicyShould
     [Fact]
     public async Task NotChangeContextState_WhenServeNotModifiedAsyncWasCall()
     {
-        var defaultPolicy = new DefaultPolicy();
+        var defaultPolicy = DefaultPolicy.Instance;
         var extraPropsPolicy = EnableCachePolicy.Enabled;
 
         var context = ETagCacheContextFactory.CreateContext();
@@ -47,7 +47,7 @@ public class EnableCachePolicyShould
     [Fact]
     public async Task NotChangeContextState_WhenServeDownstreamResponseAsyncWasCall()
     {
-        var defaultPolicy = new DefaultPolicy();
+        var defaultPolicy = DefaultPolicy.Instance;
         var extraPropsPolicy = EnableCachePolicy.Enabled;
 
         var context = ETagCacheContextFactory.CreateContext();

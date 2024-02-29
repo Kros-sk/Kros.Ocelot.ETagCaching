@@ -12,6 +12,12 @@ internal sealed class DefaultPolicy : IETagCachePolicy
     private const string NoStoreHeaderValue = "no-store";
     private const string ETagHeaderName = "ETag";
 
+    private DefaultPolicy()
+    {
+    }
+
+    public static DefaultPolicy Instance { get; } = new DefaultPolicy();
+
     public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
         context.EnableETagCache = !HaveRequestNoCacheHeader(context);

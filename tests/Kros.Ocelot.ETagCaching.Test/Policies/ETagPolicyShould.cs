@@ -20,7 +20,7 @@ public class ETagPolicyShould
     [Fact]
     public async Task NotChangeContextState_WhenServeNotModifiedAsyncWasCall()
     {
-        var defaultPolicy = new DefaultPolicy();
+        var defaultPolicy = DefaultPolicy.Instance;
         var extraPropsPolicy = new ETagPolicy(_ => new EntityTagHeaderValue("\"123\""));
 
         var context = ETagCacheContextFactory.CreateContext();
@@ -36,7 +36,7 @@ public class ETagPolicyShould
     [Fact]
     public async Task NotChangeContextState_WhenServeDownstreamResponseAsyncWasCall()
     {
-        var defaultPolicy = new DefaultPolicy();
+        var defaultPolicy = DefaultPolicy.Instance;
         var extraPropsPolicy = new ETagPolicy(_ => new EntityTagHeaderValue("\"123\""));
 
         var context = ETagCacheContextFactory.CreateContext();

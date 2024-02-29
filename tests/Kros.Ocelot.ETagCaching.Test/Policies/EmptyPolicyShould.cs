@@ -7,7 +7,7 @@ public class EmptyPolicyShould
     [Fact]
     public async Task NotChangeContextState_WhenCacheETagAsyncWasCall()
     {
-        var defaultPolicy = new DefaultPolicy();
+        var defaultPolicy = DefaultPolicy.Instance;
         var emptyPolicy = EmptyPolicy.Instance;
 
         var context = ETagCacheContextFactory.CreateContext();
@@ -23,7 +23,7 @@ public class EmptyPolicyShould
     [Fact]
     public async Task NotChangeContextState_WhenServeNotModifiedAsyncWasCall()
     {
-        var defaultPolicy = new DefaultPolicy();
+        var defaultPolicy = DefaultPolicy.Instance;
         var emptyPolicy = EmptyPolicy.Instance;
 
         var context = ETagCacheContextFactory.CreateContext();
@@ -39,7 +39,7 @@ public class EmptyPolicyShould
     [Fact]
     public async Task NotChangeContextState_WhenServeDownstreamResponseAsyncWasCall()
     {
-        var defaultPolicy = new DefaultPolicy();
+        var defaultPolicy = DefaultPolicy.Instance;
         var emptyPolicy = EmptyPolicy.Instance;
 
         var context = ETagCacheContextFactory.CreateContext();

@@ -10,7 +10,7 @@ public class DefaultPolicyShould
     public async Task EnableETagCache()
     {
         var context = ETagCacheContextFactory.CreateContext();
-        var policy = new DefaultPolicy();
+        var policy = DefaultPolicy.Instance;
 
         await policy.CacheETagAsync(context, default);
 
@@ -22,7 +22,7 @@ public class DefaultPolicyShould
     {
         var context = ETagCacheContextFactory.CreateContext();
         context.DownstreamRequest.Headers.Add("Cache-Control", "no-cache");
-        var policy = new DefaultPolicy();
+        var policy = DefaultPolicy.Instance;
 
         await policy.CacheETagAsync(context, default);
 
@@ -40,7 +40,7 @@ public class DefaultPolicyShould
     public async Task AllowCacheResponseForGetMethod(string httpMethod, bool allowed)
     {
         var context = ETagCacheContextFactory.CreateContext(httpMethod);
-        var policy = new DefaultPolicy();
+        var policy = DefaultPolicy.Instance;
 
         await policy.CacheETagAsync(context, default);
 
@@ -51,7 +51,7 @@ public class DefaultPolicyShould
     public async Task AllowCacheResponseFor200StatusCode()
     {
         var context = ETagCacheContextFactory.CreateContext();
-        var policy = new DefaultPolicy();
+        var policy = DefaultPolicy.Instance;
 
         await policy.CacheETagAsync(context, default);
         await policy.ServeDownstreamResponseAsync(context, default);
@@ -64,7 +64,7 @@ public class DefaultPolicyShould
     public async Task DoNotAllowCacheResponseForNon200StatusCode(HttpStatusCode statusCode)
     {
         var context = ETagCacheContextFactory.CreateContext(statusCode: statusCode);
-        var policy = new DefaultPolicy();
+        var policy = DefaultPolicy.Instance;
 
         await policy.CacheETagAsync(context, default);
         await policy.ServeDownstreamResponseAsync(context, default);
@@ -77,7 +77,7 @@ public class DefaultPolicyShould
     {
         var context = ETagCacheContextFactory.CreateContext();
         context.DownstreamRequest.Headers.Add("Cache-Control", "no-store");
-        var policy = new DefaultPolicy();
+        var policy = DefaultPolicy.Instance;
 
         await policy.CacheETagAsync(context, default);
         await policy.ServeDownstreamResponseAsync(context, default);
@@ -89,7 +89,7 @@ public class DefaultPolicyShould
     public async Task SetDefaultExpirationTime()
     {
         var context = ETagCacheContextFactory.CreateContext();
-        var policy = new DefaultPolicy();
+        var policy = DefaultPolicy.Instance;
 
         await policy.CacheETagAsync(context, default);
 
@@ -100,7 +100,7 @@ public class DefaultPolicyShould
     public async Task SetCacheKey()
     {
         var context = ETagCacheContextFactory.CreateContext();
-        var policy = new DefaultPolicy();
+        var policy = DefaultPolicy.Instance;
 
         await policy.CacheETagAsync(context, default);
 
@@ -111,7 +111,7 @@ public class DefaultPolicyShould
     public async Task SetStatusCodeNotModifiedIfServeFromCache()
     {
         var context = ETagCacheContextFactory.CreateContext();
-        var policy = new DefaultPolicy();
+        var policy = DefaultPolicy.Instance;
 
         await policy.ServeNotModifiedAsync(context, default);
 
@@ -122,7 +122,7 @@ public class DefaultPolicyShould
     public async Task SetResponseHeadersWhenCacheValue()
     {
         var context = ETagCacheContextFactory.CreateContext();
-        var policy = new DefaultPolicy();
+        var policy = DefaultPolicy.Instance;
 
         await policy.ServeDownstreamResponseAsync(context, default);
 
@@ -135,7 +135,7 @@ public class DefaultPolicyShould
     public async Task SetCachedResponseHeadersWhenCacheValue()
     {
         var context = ETagCacheContextFactory.CreateContext(etagValue: "incommingetag");
-        var policy = new DefaultPolicy();
+        var policy = DefaultPolicy.Instance;
 
         await policy.ServeNotModifiedAsync(context, default);
 

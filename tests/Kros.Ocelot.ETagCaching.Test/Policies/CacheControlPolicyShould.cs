@@ -46,7 +46,7 @@ public class CacheControlPolicyShould
             Private = true
         };
         var policy = new CacheControlPolicy(cacheControl);
-        var defaultPolicy = new DefaultPolicy();
+        var defaultPolicy = DefaultPolicy.Instance;
 
         var context = ETagCacheContextFactory.CreateContext();
         await defaultPolicy.CacheETagAsync(context, default);

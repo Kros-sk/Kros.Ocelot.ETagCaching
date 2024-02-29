@@ -18,7 +18,7 @@ public class StatusCodePolicyShould
     [Fact]
     public async Task NotChangeContextState_WhenServeDownstreamResponseAsyncWasCall()
     {
-        var defaultPolicy = new DefaultPolicy();
+        var defaultPolicy = DefaultPolicy.Instance;
         var extraPropsPolicy = new StatusCodePolicy(211);
 
         var context = ETagCacheContextFactory.CreateContext();
@@ -37,7 +37,7 @@ public class StatusCodePolicyShould
     [Fact]
     public async Task NotChangeContextState_WhenCacheETagAsyncWasCall()
     {
-        var defaultPolicy = new DefaultPolicy();
+        var defaultPolicy = DefaultPolicy.Instance;
         var extraPropsPolicy = new StatusCodePolicy(211);
 
         var context = ETagCacheContextFactory.CreateContext();

@@ -53,7 +53,7 @@ public class CacheEntryEstraPropsPolicyShould
     [Fact]
     public async Task NotChangeContextState_WhenServeNotModifiedAsyncWasCall()
     {
-        var defaultPolicy = new DefaultPolicy();
+        var defaultPolicy = DefaultPolicy.Instance;
         var extraPropsPolicy = new CacheEntryExtraPropsPolicy(new Dictionary<string, object>());
 
         var context = ETagCacheContextFactory.CreateContext();
@@ -69,7 +69,7 @@ public class CacheEntryEstraPropsPolicyShould
     [Fact]
     public async Task NotChangeContextState_WhenServeDownstreamResponseAsyncWasCall()
     {
-        var defaultPolicy = new DefaultPolicy();
+        var defaultPolicy = DefaultPolicy.Instance;
         var extraPropsPolicy = new CacheEntryExtraPropsPolicy(new Dictionary<string, object>());
 
         var context = ETagCacheContextFactory.CreateContext();
