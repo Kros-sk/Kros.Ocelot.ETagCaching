@@ -100,6 +100,19 @@ public sealed class ETagCachePolicyBuilder
         return this;
     }
 
+    /// <summary>
+    /// Add a policy which add extra properties to the cache entry.
+    /// </summary>
+    /// <param name="extraProps">Configure extra properties.</param>
+    public ETagCachePolicyBuilder CacheEntryExtraProp(Action<Dictionary<string, object>> extraProps)
+    {
+        var props = new Dictionary<string, object>();
+        extraProps(props);
+        AddPolicy(new CacheEntryExtraPropsPolicy(props));
+
+        return this;
+    }
+
     internal IETagCachePolicy Build()
         => _policies.Count switch
         {
