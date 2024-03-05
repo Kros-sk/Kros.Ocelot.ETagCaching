@@ -69,6 +69,8 @@ public class ServiceCollectionExtensionsShould
 
         var serviceProvider = services.BuildServiceProvider();
         var options = serviceProvider.GetRequiredService<IOptions<ETagCachingOptions>>().Value;
-        act.Should().Throw<ArgumentException>();
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithMessage("Policy with name '{getAllProduct}' already exists.");
     }
 }
