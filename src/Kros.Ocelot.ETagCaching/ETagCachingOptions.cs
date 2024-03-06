@@ -1,4 +1,5 @@
 ﻿using Kros.Ocelot.ETagCaching;
+using Kros.Ocelot.ETagCaching.Policies;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -8,6 +9,9 @@ namespace Microsoft.Extensions.DependencyInjection;
 public sealed class ETagCachingOptions
 {
     private readonly Dictionary<string, IETagCachePolicy> _policies = new(StringComparer.OrdinalIgnoreCase);
+
+    internal static ETagCachingOptions Create()
+        => new();
 
     /// <summary>
     /// Adds a policy to the ETag caching.
@@ -35,10 +39,19 @@ public sealed class ETagCachingOptions
     }
 
     /// <summary>
-    /// Tries to get a policy.
+    /// Adds a default policy to the ETag caching.
+    /// </summary>
+    /// <param name="policyName">This name shoud be use for downstream path configuration.</param>
+    /// <exception cref="ArgumentException">If policy with the same name already exists.</exception>
+    public ETagCachingOptions AddDefaultPolicy(string policyName)
+        => AddPolicy(policyName, _ => { });
+
+    /// <summary>
+    /// Get policy.
     /// </summary>
     /// <param name="policyName">Policy name.</param>
-    /// <param name="policy">Policy if exist.</param>
-    public bool TryGetPolicy(string policyName, out IETagCachePolicy? policy)
-        => _policies.TryGetValue(policyName, out policy);
+    public IETagCachePolicy GetPolicy(string policyName)
+        => _policies.TryGetValue(policyName, out var policy)
+        ? policy
+        : EmptyPolicy.Instance;
 }

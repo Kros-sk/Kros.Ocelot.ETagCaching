@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using Ocelot.Request.Middleware;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Kros.Ocelot.ETagCaching.Policies;
@@ -11,6 +12,7 @@ internal sealed class DefaultPolicy : IETagCachePolicy
     private const string NoCacheHeaderValue = "no-cache";
     private const string NoStoreHeaderValue = "no-store";
     private const string ETagHeaderName = "ETag";
+    private const string IfNoneMatchHeaderName = "If-None-Match";
 
     private DefaultPolicy()
     {
@@ -30,9 +32,16 @@ internal sealed class DefaultPolicy : IETagCachePolicy
 
     public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
-        context.StatusCode = StatusCodes.Status304NotModified;
-        AddCacheHeaders(context.CachedResponseHeaders, context.ETag.ToString());
+        if (AllowServeFromCache(context, out var entityTag))
+        {
+            context.ETag = entityTag;
+            context.StatusCode = StatusCodes.Status304NotModified;
+            AddCacheHeaders(context.CachedResponseHeaders, entityTag.ToString());
 
+            return ValueTask.CompletedTask;
+        }
+
+        context.AllowNotModified = false;
         return ValueTask.CompletedTask;
     }
 
@@ -97,5 +106,17 @@ internal sealed class DefaultPolicy : IETagCachePolicy
         sb.Append(downstreamRequest.Query.ToLower());
 
         return sb.ToString();
+    }
+
+    private static bool AllowServeFromCache(ETagCacheContext context, [NotNullWhen(true)] out EntityTagHeaderValue? entityTag)
+    {
+        entityTag = null;
+        if (context.DownstreamRequest.Headers.TryGetValues(IfNoneMatchHeaderName, out var values) && values.Count() == 1)
+        {
+            entityTag = EntityTagHeaderValue.Parse(values.First());
+            return true;
+        }
+
+        return false;
     }
 }

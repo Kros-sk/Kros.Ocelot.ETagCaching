@@ -21,8 +21,7 @@ public class ServiceCollectionExtensionsShould
         var serviceProvider = services.BuildServiceProvider();
         var options = serviceProvider.GetRequiredService<IOptions<ETagCachingOptions>>();
 
-        options.Value.TryGetPolicy("getAllProduct", out var policy)
-            .Should().BeTrue();
+        var policy = options.Value.GetPolicy("getAllProduct");
 
         var context = ETagCacheContextFactory.CreateContext();
 
@@ -46,11 +45,11 @@ public class ServiceCollectionExtensionsShould
         var serviceProvider = services.BuildServiceProvider();
         var options = serviceProvider.GetRequiredService<IOptions<ETagCachingOptions>>();
 
-        options.Value.TryGetPolicy("getAllProduct", out var policy);
+        var policy = options.Value.GetPolicy("getAllProduct");
         var context = ETagCacheContextFactory.CreateContext();
         context.EnableETagCache = false;
 
-        await policy!.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, default);
 
         context.EnableETagCache.Should().BeFalse();
     }
@@ -71,6 +70,6 @@ public class ServiceCollectionExtensionsShould
         var options = serviceProvider.GetRequiredService<IOptions<ETagCachingOptions>>().Value;
         act.Should()
             .Throw<ArgumentException>()
-            .WithMessage("Policy with name '{getAllProduct}' already exists.");
+            .WithMessage("Policy with name 'getAllProduct' already exists. (Parameter 'getAllProduct')");
     }
 }

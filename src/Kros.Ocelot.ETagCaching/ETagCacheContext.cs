@@ -48,6 +48,11 @@ public sealed class ETagCacheContext
     public bool AllowCacheResponseETag { get; set; }
 
     /// <summary>
+    /// Determines whether the response of the HTTP request should be served from the cache.
+    /// </summary>
+    public bool AllowNotModified { get; set; } = true;
+
+    /// <summary>
     /// Gets the tag templates of the cached response.
     /// </summary>
     public HashSet<string> TagTemplates { get; } = [];

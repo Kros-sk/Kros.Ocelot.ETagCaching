@@ -112,6 +112,7 @@ public class DefaultPolicyShould
     {
         var context = ETagCacheContextFactory.CreateContext();
         var policy = DefaultPolicy.Instance;
+        context.DownstreamRequest.Headers.Add("If-None-Match", "\"incommingetag\"");
 
         await policy.ServeNotModifiedAsync(context, default);
 
@@ -136,11 +137,36 @@ public class DefaultPolicyShould
     {
         var context = ETagCacheContextFactory.CreateContext(etagValue: "incommingetag");
         var policy = DefaultPolicy.Instance;
+        context.DownstreamRequest.Headers.Add("If-None-Match", "\"incommingetag\"");
 
         await policy.ServeNotModifiedAsync(context, default);
 
         context.CachedResponseHeaders.Should().Contain("Cache-Control", "private");
         context.CachedResponseHeaders.Should().Contain("ETag", context.ETag.ToString());
+    }
+
+    [Fact]
+    public async Task DisallowServeFromCacheWhenIfNoneMatchHeaderIsNotPresent()
+    {
+        var context = ETagCacheContextFactory.CreateContext();
+        var policy = DefaultPolicy.Instance;
+
+        await policy.ServeNotModifiedAsync(context, default);
+
+        context.AllowNotModified.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task AllowServeFromCacheWhenIfNoneMatchHeaderIsPresent()
+    {
+        var context = ETagCacheContextFactory.CreateContext();
+        var policy = DefaultPolicy.Instance;
+        context.DownstreamRequest.Headers.Add("If-None-Match", "\"incommingetag\"");
+
+        await policy.ServeNotModifiedAsync(context, default);
+
+        context.AllowNotModified.Should().BeTrue();
+        context.ETag.ToString().Should().Be("\"incommingetag\"");
     }
 
     public static TheoryData<HttpStatusCode> Non200StatusCodes()

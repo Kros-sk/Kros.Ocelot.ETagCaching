@@ -1,8 +1,10 @@
-﻿namespace Kros.Ocelot.ETagCaching;
+﻿using Microsoft.Net.Http.Headers;
 
-internal sealed class ETagCacheEntry(string eTag, DateTimeOffset lastModified)
+namespace Kros.Ocelot.ETagCaching;
+
+internal sealed class ETagCacheEntry(EntityTagHeaderValue eTag, DateTimeOffset lastModified)
 {
-    public string ETag { get; } = eTag;
+    public string ETag { get; } = eTag.ToString();
 
     public DateTimeOffset LastModified { get; } = lastModified;
 
