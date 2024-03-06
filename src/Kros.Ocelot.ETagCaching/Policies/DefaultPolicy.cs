@@ -67,6 +67,11 @@ internal sealed class DefaultPolicy : IETagCachePolicy
 
     private static bool AllowCacheResponseETag(ETagCacheContext context)
     {
+        if (!IsGetMethod(context))
+        {
+            return false;
+        }
+
         if (context.DownstreamResponse is null
             || context.DownstreamResponse.StatusCode != System.Net.HttpStatusCode.OK)
         {

@@ -55,7 +55,7 @@ public sealed class ETagCacheContext
     /// <summary>
     /// Gets the tag templates of the cached response.
     /// </summary>
-    public HashSet<string> TagTemplates { get; } = [];
+    public HashSet<string> Tags { get; } = [];
 
     /// <summary>
     /// Gets or sets the amount of time the response etag should be cached for.

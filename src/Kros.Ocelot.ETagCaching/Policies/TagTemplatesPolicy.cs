@@ -1,4 +1,6 @@
-﻿namespace Kros.Ocelot.ETagCaching.Policies;
+﻿using System.Text;
+
+namespace Kros.Ocelot.ETagCaching.Policies;
 
 internal sealed class TagTemplatesPolicy(string[] tagTemplates) : IETagCachePolicy
 {
@@ -6,9 +8,14 @@ internal sealed class TagTemplatesPolicy(string[] tagTemplates) : IETagCachePoli
 
     public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
-        foreach (var tag in _tagTemplates)
+        foreach (var tagTemplate in _tagTemplates)
         {
-            context.TagTemplates.Add(tag);
+            var tag = new StringBuilder(tagTemplate);
+            foreach (var template in context.TemplatePlaceholderNameAndValues)
+            {
+                tag.Replace(template.Name, template.Value);
+            }
+            context.Tags.Add(tag.ToString());
         }
 
         return ValueTask.CompletedTask;

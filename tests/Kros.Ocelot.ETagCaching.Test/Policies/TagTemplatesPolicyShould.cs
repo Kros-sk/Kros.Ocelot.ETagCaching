@@ -7,21 +7,22 @@ public class TagTemplatesPolicyShould
     [Fact]
     public async Task AddTagsToContext()
     {
-        var policy = new TagTemplatesPolicy(["tag1{tenantId}", "tag2{id}"]);
+        var policy = new TagTemplatesPolicy(["tag1:{tenantId}", "tag2:{id}"]);
         var context = ETagCacheContextFactory.CreateContext();
 
         await policy.CacheETagAsync(context, default);
 
-        context.TagTemplates.Should().BeEquivalentTo(["tag1{tenantId}", "tag2{id}"]);
+        context.Tags.Should().BeEquivalentTo(["tag1:1", "tag2:2"]);
     }
 
     [Fact]
     public async Task NotChangeContextState_WhenServeNotModifiedAsyncWasCall()
     {
         var defaultPolicy = DefaultPolicy.Instance;
-        var extraPropsPolicy = new TagTemplatesPolicy(["tag1{tenantId}", "tag2{id}"]);
+        var extraPropsPolicy = new TagTemplatesPolicy(["tag1:{tenantId}", "tag2:{id}"]);
 
         var context = ETagCacheContextFactory.CreateContext();
+
         await defaultPolicy.ServeNotModifiedAsync(context, default);
 
         var context2 = ETagCacheContextFactory.CreateContext();
@@ -35,9 +36,10 @@ public class TagTemplatesPolicyShould
     public async Task NotChangeContextState_WhenServeDownstreamResponseAsyncWasCall()
     {
         var defaultPolicy = DefaultPolicy.Instance;
-        var extraPropsPolicy = new TagTemplatesPolicy(["tag1{tenantId}", "tag2{id}"]);
+        var extraPropsPolicy = new TagTemplatesPolicy(["tag1:{tenantId}", "tag2:{id}"]);
 
         var context = ETagCacheContextFactory.CreateContext();
+
         await defaultPolicy.ServeDownstreamResponseAsync(context, default);
 
         var context2 = ETagCacheContextFactory.CreateContext();

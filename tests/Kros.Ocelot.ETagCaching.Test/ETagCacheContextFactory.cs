@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
+using Ocelot.DownstreamRouteFinder.UrlMatcher;
 using Ocelot.Middleware;
 using Ocelot.Request.Middleware;
 using System.Net;
@@ -19,7 +20,7 @@ internal static class ETagCacheContextFactory
             Method = new HttpMethod(httpMethod),
             RequestUri = new Uri("http://localhost:5000/api/2/products?skip=10&take=5")
         };
-        return new ETagCacheContext()
+        var context = new ETagCacheContext()
         {
             RequestFeatures = httpContext.Features,
             RequestServices = httpContext.RequestServices,
@@ -28,5 +29,10 @@ internal static class ETagCacheContextFactory
             DownstreamResponse = new DownstreamResponse(new HttpResponseMessage(statusCode)),
             ETag = new EntityTagHeaderValue($"\"{etagValue}\"")
         };
+
+        context.TemplatePlaceholderNameAndValues.Add(new PlaceholderNameAndValue("{tenantId}", "1"));
+        context.TemplatePlaceholderNameAndValues.Add(new PlaceholderNameAndValue("{id}", "2"));
+
+        return context;
     }
 }

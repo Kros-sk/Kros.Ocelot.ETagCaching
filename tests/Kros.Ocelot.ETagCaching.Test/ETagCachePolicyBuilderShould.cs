@@ -18,7 +18,7 @@ public class ETagCachePolicyBuilderShould
             })
             .ETag(_ => new EntityTagHeaderValue("\"123\""))
             .CacheKey(_ => "cacheKey")
-            .TagTemplates("tag1{tenantId}", "tag2{id}")
+            .TagTemplates("tag1:{tenantId}", "tag2:{id}")
             .StatusCode(222)
             .CacheEntryExtraProp(props => props.Add("key1", "value1"));
 
@@ -33,7 +33,7 @@ public class ETagCachePolicyBuilderShould
         context.ETagExpirationTimeSpan.Should().Be(TimeSpan.FromMinutes(10));
         context.ResponseHeaders.Should().Contain(HeaderNames.CacheControl, "max-age=600, private");
         context.CacheKey.Should().Be("cacheKey");
-        context.TagTemplates.Should().BeEquivalentTo(["tag1{tenantId}", "tag2{id}"]);
+        context.Tags.Should().BeEquivalentTo(["tag1:1", "tag2:2"]);
         context.StatusCode.Should().Be(222);
         context.CacheEntryExtraProps.Should().Contain("key1", "value1");
     }
