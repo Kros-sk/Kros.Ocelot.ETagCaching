@@ -179,6 +179,95 @@ public class ETagCachingMiddlewareShould
         response.Headers.Should().ContainEquivalentOf(new Header("ETag", ["\"123\""]));
     }
 
+    [Fact]
+    public async Task CallNextMiddlewareWhenPolicyIsNotSetForDownstreamRoute()
+    {
+        var store = Store.Create();
+        var middleware = new ETagCachingMiddleware(
+            CreateRoutes([new("products", "productsPolicy")]),
+            store,
+            ETagCachingOptions.Create());
+
+        var context = CreateHttpContext();
+        var nextCalled = false;
+
+        await middleware.InvokeAsync(context, () =>
+        {
+            nextCalled = true;
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CallNextMiddlewareWhenPolicyDoesNotAllowCaching()
+    {
+        var store = Store.Create();
+        var middleware = new ETagCachingMiddleware(
+            CreateRoutes([new("products", "productsPolicy")]),
+            store,
+            ETagCachingOptions.Create()
+                .AddPolicy("productsPolicy", builder => builder.AddPolicy(EnableCachePolicy.Disabled)));
+
+        var context = CreateHttpContext();
+        var nextCalled = false;
+
+        await middleware.InvokeAsync(context, () =>
+        {
+            nextCalled = true;
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CallNextMiddlewareWhenPolicyAllowsCachingAndNeedDownstreamResponse()
+    {
+        var store = Store.Create();
+        var middleware = new ETagCachingMiddleware(
+            CreateRoutes([new("products", "productsPolicy")]),
+            store,
+            ETagCachingOptions.Create()
+                .AddDefaultPolicy("productsPolicy"));
+
+        var context = CreateHttpContext();
+        var nextCalled = false;
+
+        await middleware.InvokeAsync(context, () =>
+        {
+            nextCalled = true;
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task DoNotCallNextMiddlewareWhenNotModifiedResponseIsServed()
+    {
+        var cacheEntry = new ETagCacheEntry(new EntityTagHeaderValue("\"123\""), []);
+        var store = Store.Create(cacheEntry);
+        var middleware = new ETagCachingMiddleware(
+            CreateRoutes([new("products", "productsPolicy")]),
+            store,
+            ETagCachingOptions.Create()
+                .AddDefaultPolicy("productsPolicy"));
+
+        var context = CreateHttpContext();
+        context.Items.UpsertDownstreamRequest(CreateRequest([("If-None-Match", "\"123\"")]));
+        var nextCalled = false;
+
+        await middleware.InvokeAsync(context, () =>
+        {
+            nextCalled = true;
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeFalse();
+    }
+
     private static DownstreamRequest CreateRequest(IEnumerable<(string header, string value)> headers)
     {
         var request = new DownstreamRequest(new HttpRequestMessage(HttpMethod.Get, "http://localhost"));

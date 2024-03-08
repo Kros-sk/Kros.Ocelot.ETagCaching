@@ -43,15 +43,9 @@ internal class ETagCachingMiddleware(
 
     private async Task InvokeCaching(HttpContext context, IETagCachePolicy policy, Func<Task> next)
     {
-        var cacheContext = new ETagCacheContext()
-        {
-            DownstreamRequest = context.Items.DownstreamRequest(),
-            RequestFeatures = context.Features,
-            RequestServices = context.RequestServices,
-            TemplatePlaceholderNameAndValues = context.Items.TemplatePlaceholderNameAndValues()
-        };
-
+        var cacheContext = CreateContext(context);
         context.Features.Set(new ETagCacheFeature(cacheContext));
+
         await policy.CacheETagAsync(cacheContext, context.RequestAborted);
 
         if (cacheContext.EnableETagCache)
@@ -76,32 +70,45 @@ internal class ETagCachingMiddleware(
             if (cacheContext.AllowCacheResponseETag)
             {
                 await next();
-                cacheContext.DownstreamResponse = context.Items.DownstreamResponse();
-                await policy.ServeDownstreamResponseAsync(cacheContext, context.RequestAborted);
-
-                if (cacheContext.AllowCacheResponseETag)
-                {
-                    var cacheEntry = new ETagCacheEntry(cacheContext.ETag, cacheContext.CacheEntryExtraProps);
-
-                    await _cacheStore.SetAsync(
-                        cacheContext.CacheKey,
-                        cacheEntry.Serialize(),
-                        [.. cacheContext.Tags],
-                        cacheContext.ETagExpirationTimeSpan,
-                        context.RequestAborted);
-
-                    var response = context.Items.DownstreamResponse();
-                    foreach (var header in cacheContext.ResponseHeaders)
-                    {
-                        response.Headers.Add(new(header.Key, header.Value));
-                    }
-                }
+                await CacheDownstreamResponse(context, policy, cacheContext);
             }
         }
 
         await next();
         return;
     }
+
+    private async Task CacheDownstreamResponse(HttpContext context, IETagCachePolicy policy, ETagCacheContext cacheContext)
+    {
+        cacheContext.DownstreamResponse = context.Items.DownstreamResponse();
+        await policy.ServeDownstreamResponseAsync(cacheContext, context.RequestAborted);
+
+        if (cacheContext.AllowCacheResponseETag)
+        {
+            var cacheEntry = new ETagCacheEntry(cacheContext.ETag, cacheContext.CacheEntryExtraProps);
+
+            await _cacheStore.SetAsync(
+                cacheContext.CacheKey,
+                cacheEntry.Serialize(),
+                [.. cacheContext.Tags],
+                cacheContext.ETagExpirationTimeSpan,
+                context.RequestAborted);
+
+            var response = context.Items.DownstreamResponse();
+            foreach (var header in cacheContext.ResponseHeaders)
+            {
+                response.Headers.Add(new(header.Key, header.Value));
+            }
+        }
+    }
+
+    private static ETagCacheContext CreateContext(HttpContext context) => new ETagCacheContext()
+    {
+        DownstreamRequest = context.Items.DownstreamRequest(),
+        RequestFeatures = context.Features,
+        RequestServices = context.RequestServices,
+        TemplatePlaceholderNameAndValues = context.Items.TemplatePlaceholderNameAndValues()
+    };
 
     private static void CreateNotModifyResponse(HttpContext context, ETagCacheContext cacheContext)
     {
