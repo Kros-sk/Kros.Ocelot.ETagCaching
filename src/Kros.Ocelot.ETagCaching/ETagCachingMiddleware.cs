@@ -112,7 +112,7 @@ internal class ETagCachingMiddleware(
 
     private static void CreateNotModifyResponse(HttpContext context, ETagCacheContext cacheContext)
     {
-        StringContent stringContent = new("No body");
+        StringContent stringContent = new("");
         List<Header> headers = [];
 
         foreach (var header in cacheContext.CachedResponseHeaders)

@@ -7,12 +7,6 @@ namespace Kros.Ocelot.ETagCaching;
 
 internal sealed class ETagCacheEntry(EntityTagHeaderValue eTag, Dictionary<string, object?> extraProps)
 {
-    private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
-    {
-        IncludeFields = true,
-        PropertyNameCaseInsensitive = true
-    };
-
     [JsonConstructor]
     public ETagCacheEntry(string eTag, Dictionary<string, object?> extraProps)
         : this(new EntityTagHeaderValue(eTag), extraProps)
@@ -22,7 +16,7 @@ internal sealed class ETagCacheEntry(EntityTagHeaderValue eTag, Dictionary<strin
     public static ETagCacheEntry? Deserialize(byte[] data)
     {
         var json = Encoding.UTF8.GetString(data);
-        return JsonSerializer.Deserialize<ETagCacheEntry>(json, _jsonSerializerOptions);
+        return JsonSerializer.Deserialize<ETagCacheEntry>(json);
     }
 
     public byte[] Serialize()

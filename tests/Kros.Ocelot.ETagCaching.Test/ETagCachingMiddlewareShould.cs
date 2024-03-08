@@ -155,8 +155,9 @@ public class ETagCachingMiddlewareShould
         var context = CreateHttpContext();
 
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
-
-        context.Features.Get<ETagCacheFeature>().Should().NotBeNull();
+        var feature = context.Features.Get<ETagCacheFeature>()!;
+        feature.Should().NotBeNull();
+        feature.ETagCacheContext.Should().NotBeNull();
     }
 
     [Fact]
@@ -268,6 +269,29 @@ public class ETagCachingMiddlewareShould
         nextCalled.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task CacheDownstreamResponseBeforeServingNotModifiedResponse()
+    {
+        var store = Store.Create();
+        var middleware = new ETagCachingMiddleware(
+            CreateRoutes([new("products", "productsPolicy")]),
+            store,
+            ETagCachingOptions.Create()
+                .AddPolicy("productsPolicy", b => b.ETag(_ => new("\"123\""))));
+
+        var context = CreateHttpContext();
+
+        await middleware.InvokeAsync(context, () => Task.CompletedTask);
+
+        context = CreateHttpContext();
+        context.Items.UpsertDownstreamRequest(CreateRequest([("If-None-Match", "\"123\"")]));
+
+        await middleware.InvokeAsync(context, () => Task.CompletedTask);
+
+        var response = context.Items.DownstreamResponse();
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotModified);
+    }
+
     private static DownstreamRequest CreateRequest(IEnumerable<(string header, string value)> headers)
     {
         var request = new DownstreamRequest(new HttpRequestMessage(HttpMethod.Get, "http://localhost"));
@@ -318,7 +342,7 @@ public class ETagCachingMiddlewareShould
 
     private class Store : IOutputCacheStore
     {
-        private readonly ETagCacheEntry? _entry;
+        private byte[]? _entry;
 
         public bool WasCallSetAsync { get; private set; }
 
@@ -326,7 +350,9 @@ public class ETagCachingMiddlewareShould
             => new(entry);
 
         private Store(ETagCacheEntry? entry = null)
-            => _entry = entry;
+        {
+            _entry = entry?.Serialize();
+        }
 
         public ValueTask EvictByTagAsync(string tag, CancellationToken cancellationToken)
             => throw new NotImplementedException();
@@ -339,18 +365,14 @@ public class ETagCachingMiddlewareShould
             CancellationToken cancellationToken)
         {
             WasCallSetAsync = true;
+            _entry = value;
+
             return ValueTask.CompletedTask;
         }
 
         ValueTask<byte[]?> IOutputCacheStore.GetAsync(string key, CancellationToken cancellationToken)
         {
-            byte[]? bytes = null;
-            if (_entry is not null)
-            {
-                bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(_entry));
-            }
-
-            return ValueTask.FromResult(bytes);
+            return ValueTask.FromResult(_entry);
         }
     }
 }
