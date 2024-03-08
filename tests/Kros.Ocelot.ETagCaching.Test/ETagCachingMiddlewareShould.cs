@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
+using Ocelot.Configuration;
 using Ocelot.Middleware;
 using Ocelot.Request.Middleware;
 using System.Text;
@@ -71,7 +72,7 @@ public class ETagCachingMiddlewareShould
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             ETagCachingOptions.Create()
-                .AddPolicy("productsPolicy", b => b.ETag(_ => EntityTagHeaderValue.Parse("123"))));
+                .AddPolicy("productsPolicy", b => b.ETag(_ => new("\"123\""))));
 
         var context = CreateHttpContext();
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
@@ -84,7 +85,7 @@ public class ETagCachingMiddlewareShould
     [Fact]
     public async Task ServeNotModifiedResponseIfPolicyAllowsItAndRequestIsNotModified()
     {
-        var cacheEntry = new ETagCacheEntry(new ("\"123\""), DateTime.UtcNow);
+        var cacheEntry = new ETagCacheEntry(new EntityTagHeaderValue("\"123\""), []);
         var store = Store.Create(cacheEntry);
         var middleware = new ETagCachingMiddleware(
             CreateRoutes([new("products", "productsPolicy")]),
@@ -104,7 +105,7 @@ public class ETagCachingMiddlewareShould
     [Fact]
     public async Task DoNotServeNotModifiedResponseIfPolicyDoesNotAllowIt()
     {
-        var cacheEntry = new ETagCacheEntry(new("\"123\""), DateTime.UtcNow);
+        var cacheEntry = new ETagCacheEntry(new EntityTagHeaderValue("\"123\""), []);
         var store = Store.Create(cacheEntry);
         var middleware = new ETagCachingMiddleware(
             CreateRoutes([new("products", "productsPolicy")]),
@@ -124,7 +125,7 @@ public class ETagCachingMiddlewareShould
     [Fact]
     public async Task DoNotServeNotModifiedResponseIfRequestIsModified()
     {
-        var cacheEntry = new ETagCacheEntry(new("\"123\""), DateTime.UtcNow);
+        var cacheEntry = new ETagCacheEntry(new EntityTagHeaderValue("\"123\""), []);
         var store = Store.Create(cacheEntry);
         var middleware = new ETagCachingMiddleware(
             CreateRoutes([new("products", "productsPolicy")]),
@@ -161,13 +162,13 @@ public class ETagCachingMiddlewareShould
     [Fact]
     public async Task AddCacheHeadersToResponse()
     {
-        var cacheEntry = new ETagCacheEntry(new("\"123\""), DateTime.UtcNow);
+        var cacheEntry = new ETagCacheEntry(new EntityTagHeaderValue("\"123\""), []);
         var store = Store.Create(cacheEntry);
         var middleware = new ETagCachingMiddleware(
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             ETagCachingOptions.Create()
-                .AddDefaultPolicy("productsPolicy"));
+                .AddPolicy("productsPolicy", b => b.ETag(_ => new("\"123\""))));
 
         var context = CreateHttpContext();
 
@@ -199,17 +200,23 @@ public class ETagCachingMiddlewareShould
             new List<Header>(),
             string.Empty);
         context.Items.UpsertDownstreamResponse(response);
+        context.Items.UpsertDownstreamRequest(new DownstreamRequest(new HttpRequestMessage(HttpMethod.Get, "http://localhost")));
+        context.Items.UpsertDownstreamRoute(new DownstreamRoute("products", null, null, null, [],
+            null, null, null, false, false, null, null, null,
+            false, null, null, null, [], [], [], [], [], false,
+            false, null, null, null, [], [], [], false, null, null, null));
 
         return context;
     }
 
-    private static IOptions<IEnumerable<DownstreamRoute>> CreateRoutes(IEnumerable<DownstreamRoute> routes)
+    private static IOptions<IEnumerable<FakeDownstreamRoute>> CreateRoutes(IEnumerable<FakeDownstreamRoute> routes)
         => Options.Create(routes);
 
     private class DisallowNotModifyCachePolicy : IETagCachePolicy
     {
         public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
         {
+            context.AllowNotModified = false;
             return ValueTask.CompletedTask;
         }
 
@@ -217,10 +224,7 @@ public class ETagCachingMiddlewareShould
             => ValueTask.CompletedTask;
 
         public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
-        {
-            context.AllowNotModified = false;
-            return ValueTask.CompletedTask;
-        }
+            => ValueTask.CompletedTask;
     }
 
     private class Store : IOutputCacheStore
@@ -238,7 +242,12 @@ public class ETagCachingMiddlewareShould
         public ValueTask EvictByTagAsync(string tag, CancellationToken cancellationToken)
             => throw new NotImplementedException();
 
-        public ValueTask SetAsync(string key, byte[] value, string[]? tags, TimeSpan validFor, CancellationToken cancellationToken)
+        public ValueTask SetAsync(
+            string key,
+            byte[] value,
+            string[]? tags,
+            TimeSpan validFor,
+            CancellationToken cancellationToken)
         {
             WasCallSetAsync = true;
             return ValueTask.CompletedTask;

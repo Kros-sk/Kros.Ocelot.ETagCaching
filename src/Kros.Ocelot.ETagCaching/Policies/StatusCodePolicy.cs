@@ -1,4 +1,6 @@
-﻿namespace Kros.Ocelot.ETagCaching.Policies;
+﻿using System.Net;
+
+namespace Kros.Ocelot.ETagCaching.Policies;
 
 internal sealed class StatusCodePolicy(int statusCode) : IETagCachePolicy
 {
@@ -11,7 +13,7 @@ internal sealed class StatusCodePolicy(int statusCode) : IETagCachePolicy
 
     public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
-        context.StatusCode = _statusCode;
+        context.StatusCode = (HttpStatusCode)_statusCode;
         return ValueTask.CompletedTask;
     }
 

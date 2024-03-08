@@ -1,5 +1,6 @@
 ﻿using Kros.Ocelot.ETagCaching.Policies;
 using Microsoft.Net.Http.Headers;
+using System.Net;
 
 namespace Kros.Ocelot.ETagCaching.Test;
 
@@ -34,7 +35,7 @@ public class ETagCachePolicyBuilderShould
         context.ResponseHeaders.Should().Contain(HeaderNames.CacheControl, "max-age=600, private");
         context.CacheKey.Should().Be("cacheKey");
         context.Tags.Should().BeEquivalentTo(["tag1:1", "tag2:2"]);
-        context.StatusCode.Should().Be(222);
+        context.StatusCode.Should().Be((HttpStatusCode)222);
         context.CacheEntryExtraProps.Should().Contain("key1", "value1");
     }
 

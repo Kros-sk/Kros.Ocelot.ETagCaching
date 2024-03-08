@@ -116,7 +116,7 @@ public class DefaultPolicyShould
 
         await policy.ServeNotModifiedAsync(context, default);
 
-        context.StatusCode.Should().Be(StatusCodes.Status304NotModified);
+        context.StatusCode.Should().Be(HttpStatusCode.NotModified);
     }
 
     [Fact]
@@ -151,7 +151,7 @@ public class DefaultPolicyShould
         var context = ETagCacheContextFactory.CreateContext();
         var policy = DefaultPolicy.Instance;
 
-        await policy.ServeNotModifiedAsync(context, default);
+        await policy.CacheETagAsync(context, default);
 
         context.AllowNotModified.Should().BeFalse();
     }
@@ -163,7 +163,7 @@ public class DefaultPolicyShould
         var policy = DefaultPolicy.Instance;
         context.DownstreamRequest.Headers.Add("If-None-Match", "\"incommingetag\"");
 
-        await policy.ServeNotModifiedAsync(context, default);
+        await policy.CacheETagAsync(context, default);
 
         context.AllowNotModified.Should().BeTrue();
         context.ETag.ToString().Should().Be("\"incommingetag\"");

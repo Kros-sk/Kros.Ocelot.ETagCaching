@@ -1,4 +1,5 @@
 ﻿using Kros.Ocelot.ETagCaching.Policies;
+using System.Net;
 
 namespace Kros.Ocelot.ETagCaching.Test.Policies;
 
@@ -12,7 +13,7 @@ public class StatusCodePolicyShould
 
         await policy.ServeNotModifiedAsync(context, default);
 
-        context.StatusCode.Should().Be(211);
+        context.StatusCode.Should().Be((HttpStatusCode)211);
     }
 
     [Fact]

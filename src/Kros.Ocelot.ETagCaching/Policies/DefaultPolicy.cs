@@ -8,12 +8,6 @@ namespace Kros.Ocelot.ETagCaching.Policies;
 
 internal sealed class DefaultPolicy : IETagCachePolicy
 {
-    private const string CacheControlHeaderName = "Cache-Control";
-    private const string NoCacheHeaderValue = "no-cache";
-    private const string NoStoreHeaderValue = "no-store";
-    private const string ETagHeaderName = "ETag";
-    private const string IfNoneMatchHeaderName = "If-None-Match";
-
     private DefaultPolicy()
     {
     }
@@ -26,22 +20,20 @@ internal sealed class DefaultPolicy : IETagCachePolicy
         context.AllowCacheResponseETag = IsGetMethod(context);
         context.ETagExpirationTimeSpan = TimeSpan.FromSeconds(30);
         context.CacheKey = CreateCacheKey(context.DownstreamRequest);
+        if (AllowServeFromCache(context, out var entityTag))
+        {
+            context.ETag = entityTag;
+            context.AllowNotModified = true;
+        }
 
         return ValueTask.CompletedTask;
     }
 
     public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
-        if (AllowServeFromCache(context, out var entityTag))
-        {
-            context.ETag = entityTag;
-            context.StatusCode = StatusCodes.Status304NotModified;
-            AddCacheHeaders(context.CachedResponseHeaders, entityTag.ToString());
+        context.StatusCode = System.Net.HttpStatusCode.NotModified;
+        AddCacheHeaders(context.CachedResponseHeaders,context.ETag.ToString());
 
-            return ValueTask.CompletedTask;
-        }
-
-        context.AllowNotModified = false;
         return ValueTask.CompletedTask;
     }
 
@@ -61,8 +53,8 @@ internal sealed class DefaultPolicy : IETagCachePolicy
 
     private static void AddCacheHeaders(HeaderDictionary headers, string etag)
     {
-        headers[CacheControlHeaderName] = CacheControlHeaderValue.PrivateString;
-        headers[ETagHeaderName] = etag;
+        headers[HttpHeadersHelper.CacheControlHeaderName] = CacheControlHeaderValue.PrivateString;
+        headers[HttpHeadersHelper.ETagHeaderName] = etag;
     }
 
     private static bool AllowCacheResponseETag(ETagCacheContext context)
@@ -78,7 +70,7 @@ internal sealed class DefaultPolicy : IETagCachePolicy
             return false;
         }
 
-        if (HaveCacheHeaderValue(context.DownstreamRequest.Headers, NoStoreHeaderValue))
+        if (HaveCacheHeaderValue(context.DownstreamRequest.Headers, HttpHeadersHelper.NoStoreHeaderValue))
         {
             return false;
         }
@@ -87,10 +79,10 @@ internal sealed class DefaultPolicy : IETagCachePolicy
     }
 
     private static bool HaveRequestNoCacheHeader(ETagCacheContext context)
-        => HaveCacheHeaderValue(context.DownstreamRequest.Headers, NoCacheHeaderValue);
+        => HaveCacheHeaderValue(context.DownstreamRequest.Headers, HttpHeadersHelper.NoCacheHeaderValue);
 
     private static bool HaveCacheHeaderValue(System.Net.Http.Headers.HttpHeaders headers, string value)
-        => headers.TryGetValues(CacheControlHeaderName, out var values)
+        => headers.TryGetValues(HttpHeadersHelper.CacheControlHeaderName, out var values)
             && values.Contains(value);
 
     private static bool IsGetMethod(ETagCacheContext context)
@@ -116,7 +108,8 @@ internal sealed class DefaultPolicy : IETagCachePolicy
     private static bool AllowServeFromCache(ETagCacheContext context, [NotNullWhen(true)] out EntityTagHeaderValue? entityTag)
     {
         entityTag = null;
-        if (context.DownstreamRequest.Headers.TryGetValues(IfNoneMatchHeaderName, out var values) && values.Count() == 1)
+        if (context.DownstreamRequest.Headers.TryGetValues(HttpHeadersHelper.IfNoneMatchHeaderName, out var values)
+            && values.Count() == 1)
         {
             entityTag = EntityTagHeaderValue.Parse(values.First());
             return true;

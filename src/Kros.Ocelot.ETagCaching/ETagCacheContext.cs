@@ -4,6 +4,7 @@ using Microsoft.Net.Http.Headers;
 using Ocelot.DownstreamRouteFinder.UrlMatcher;
 using Ocelot.Middleware;
 using Ocelot.Request.Middleware;
+using System.Net;
 
 namespace Kros.Ocelot.ETagCaching;
 
@@ -50,7 +51,7 @@ public sealed class ETagCacheContext
     /// <summary>
     /// Determines whether the response of the HTTP request should be served from the cache.
     /// </summary>
-    public bool AllowNotModified { get; set; } = true;
+    public bool AllowNotModified { get; set; }
 
     /// <summary>
     /// Gets the tag templates of the cached response.
@@ -60,7 +61,7 @@ public sealed class ETagCacheContext
     /// <summary>
     /// Gets or sets the amount of time the response etag should be cached for.
     /// </summary>
-    public TimeSpan? ETagExpirationTimeSpan { get; set; }
+    public TimeSpan ETagExpirationTimeSpan { get; set; }
 
     /// <summary>
     /// Extra properties to be stored in the cache entry.
@@ -80,7 +81,7 @@ public sealed class ETagCacheContext
     /// <summary>
     /// Status code of the response when it is served from the cache.
     /// </summary>
-    public int StatusCode { get; set; }
+    public HttpStatusCode StatusCode { get; set; }
 
     /// <summary>
     /// ETag value.

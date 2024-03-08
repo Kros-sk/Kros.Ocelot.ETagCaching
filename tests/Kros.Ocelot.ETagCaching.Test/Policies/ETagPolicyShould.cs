@@ -12,7 +12,7 @@ public class ETagPolicyShould
         var policy = new ETagPolicy(_ => etag);
 
         var context = ETagCacheContextFactory.CreateContext();
-        await policy.CacheETagAsync(context, default);
+        await policy.ServeDownstreamResponseAsync(context, default);
 
         context.ETag.Should().Be(etag);
     }
