@@ -1,4 +1,6 @@
-﻿namespace Microsoft.Extensions.DependencyInjection;
+﻿using Kros.Ocelot.ETagCaching;
+
+namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// Extension methods for the ETagCacning middleware.
@@ -15,6 +17,8 @@ public static class ServiceCollectionExtensions
         Action<ETagCachingOptions> configure)
     {
         services.Configure(configure);
+        services.AddSingleton<ETagCachingMiddleware>();
+        services.AddOutputCache();
 
         return services;
     }

@@ -89,21 +89,6 @@ app.UseOcelot(c =>
 {
     // 👇 Add etag caching middleware
     c.AddETagCaching();
-
-    // or with custom post processing
-    c.AddETagCaching(
-        (context, cacheEntry, resposne) =>
-            {
-                // this handler is called when data is not found in cache
-                response.Headers.Add(new ("X-Custom-Header", ["Custom value"]));
-                cacheEntry.ExtraProps.Add("CustomData", "Custom value");
-            },
-        (context, cacheEntry, response) =>
-            {
-                // this handler is called when data is found in cache
-                var customData = cacheEntry.ExtraProps["CustomData"];
-                response.Headers.Add(new ("X-Custom-Header", customData));
-            });
     }).Wait();
 
 app.Run();

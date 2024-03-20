@@ -11,7 +11,7 @@ namespace Kros.Ocelot.ETagCaching;
 internal class ETagCachingMiddleware(
     IOptions<IEnumerable<FakeDownstreamRoute>> routeOptions,
     IOutputCacheStore cacheStore,
-    ETagCachingOptions cachingOptions)
+    ETagCachingOptions cachingOptions) : IETagCachingMiddleware
 {
     private readonly Dictionary<string, FakeDownstreamRoute> _routeOptions = routeOptions.Value.ToDictionary(r => r.Key, r => r);
     private readonly IOutputCacheStore _cacheStore = cacheStore;
