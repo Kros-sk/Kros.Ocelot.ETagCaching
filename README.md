@@ -1,30 +1,28 @@
 # Ocelot ETag Caching
 
-> Toto je len prvotný návrh, ktorý sa môže meniť.
+## Basic
 
-## Úvod
+The Ocelot ETag Caching library adds support for ETag caching to the Ocelot API Gateway. ETag caching is a mechanism that allows a client to cache data and the next time the same data is requested, the client can verify that the data is still up to date. If the data is still current, the server will return a status of `304 Not Modified` and the client will use the cached data. If the data is not up-to-date, the server returns the data and the client caches it.
 
-Ocelot ETag Caching knižnica pridáva podporu pre ETag caching do Ocelot API Gateway. ETag caching je mechanizmus, ktorý umožňuje klientovi ukladať dáta do cache a pri ďalšej požiadavke na rovnaké dáta, klient môže overiť, či sú dáta stále aktuálne. Ak sú dáta stále aktuálne, server vráti status `304 Not Modified` a klient použije dáta z cache. Ak dáta nie sú aktuálne, server vráti dáta a klient ich uloží do cache.
+The idea is that the server adds two important headers to the response:
 
-Podstata je v tom, že server do odpovede pridá dve dôležité hlavičky:
+- `ETag` - data identifier (randomly generated value)
+- `cache-control` - identifier that the data can be cached. Contains only the value `private` (⚠️ beware it must not be `public`, because then the data can remain cached anywhere.) It also does not contain `max-age` because in this case the client would not verify the data on the server (for a given amount of time. Occasionally this may be OK).
 
-- `ETag` - identifikátor dát (náhodne generovaná hodnota)
-- `cache-control` - identifikátor, že je možné dáta ukladať do cache. Obsahuje len hodnotu `private` (⚠️ pozor nesmie byť `public`, pretože vtedy môžu dáta ostať kešované kdekoľvek.) Rovnako neobsahuje ani `max-age` pretože v tomto prípade by klient neoveroval dáta na serveri (po danú dobu. Občas to môže byť OK).
+If the client (browser) finds these two headers in the response, it adds the `If-None-Match` header with the `ETag` value in the next request to the server with the same path and the server knows if the data is still up to date based on this value. If they are up to date it returns a status of `304 Not Modified` and the client uses the data from the cache.
+**👌 The server does not send the data. This saves resources and bandwidth**
 
-Klient (prehliadač) pokiaľ v odpovedi nájde tieto dve hlavičky, tak v ďalšej požiadavke na server s rovnakou cestou pridá hlavičku `If-None-Match` s hodnotou `ETag` a server na základe tejto hodnoty vie, či sú dáta stále aktuálne. Ak sú aktuálne tak vráti status `304 Not Modified` a klient použije dáta z cache.
-**👌 Server neposiela dáta. Šetríme tým prostriedky a šírku pásma**
+On the client, this works automatically because this behavior is defined in the HTTP specification (no need to do anything).
 
-Na klientovi toto funguje automaticky, pretože toto správanie je definované v špecifikácii HTTP (nie je potrebné nič robiť).
+## Implementation
 
-## Implementácia
+The implementation is based on Ocelot middleware. All caching will be done in this middleware and nothing will be needed on the service side. The data itself is not cached, but only its identifier (ETag), based on which the data is verified to be up-to-date.
 
-Implementácia je založená na Ocelot middleware. Celé kešovanie sa udeje v tomto middleware a na strane služieb nebude potrebné nič robiť. Kešovať sa nebudú samotné dáta, ale iba ich identifikátor (ETag), na základe ktorého sa bude overovať aktuálnosť dát.
+We use `IOutputCacheStore` to store ETags and invalidate them.
 
-Na uchovávanie ETagov a ich invalidovanie využijeme nový `IOutputCacheStore`.
+## Get started
 
-## Použitie
-
-### Ocelot konfigurácia
+### Ocelot configuration
 
 ```json
 {
@@ -54,9 +52,7 @@ Na uchovávanie ETagov a ich invalidovanie využijeme nový `IOutputCacheStore`.
 }
 ```
 
-**❓ Poprosím o váš názor.**
-
-### Konfigurácia služby
+### `Program.cs` configuration
 
 ```csharp
 builder.Services.AddOcelotETagCaching((c) =>
@@ -75,9 +71,11 @@ builder.Services.AddOcelotETagCaching((c) =>
             p.Expire(TimeSpan.FromMinutes(5));
             p.TagTemplates("product:{tenantId}:{id}", "tenant:{tenantId}:all", "all");
 
-            p.WithCacheKeyGenerator(context => context.Request.Query["id"]); // 👈 Custom cache key
-            p.WithETag(context => new($"\"{Guid.NewGuid()}\"")); // 👈 Custom etag
-            p.WithCacheControl(context =>  new(){Public = false}); // 👈 Custom cache control
+            p.CacheKey(context => context.Request.Headers.GetValues("id").FirstOrDefault()); // 👈 Custom cache key
+            p.ETag(context => new($"\"{Guid.NewGuid()}\"")); // 👈 Custom etag
+            p.CacheControl(new() { Public = false }); // 👈 Custom cache control
+            p.StatusCode(222); // 👈 Custom status code
+            p.AddPolicy<MyCustompolicy>(); // 👈 Custom policy
         });
     }
 );
@@ -88,72 +86,14 @@ app.UseOcelot(c =>
 {
     // 👇 Add etag caching middleware
     c.AddETagCaching();
-
-    // or with custom post processing
-    c.AddETagCaching(
-        (context, cacheEntry, resposne) =>
-            {
-                // this handler is called when data is not found in cache
-                response.Headers.Add(new ("X-Custom-Header", ["Custom value"]));
-                cacheEntry.ExtraProps.Add("CustomData", "Custom value");
-            },
-        (context, cacheEntry, response) =>
-            {
-                // this handler is called when data is found in cache
-                var customData = cacheEntry.ExtraProps["CustomData"];
-                response.Headers.Add(new ("X-Custom-Header", customData));
-            });
-    }).Wait();
+}).Wait();
 
 app.Run();
 ```
 
-Zjednodušenú konfiguráciu policies by bolo možné aj cez `appsettings.json`:
-
-```json
-{
-    "ETagCachingPolicies": {
-        "getAllProducts": {
-            "Expire": "00:05:00",
-            "TagTemplates": [
-                "products:{tenantId}",
-                "all",
-                "tenantAll:{tenantId}"
-            ]
-        },
-        "getProduct": {
-            "Expire": "00:05:00",
-            "TagTemplates": [
-                "products:{tenantId}",
-                "product:{id}",
-                "tenantAll:{tenantId}",
-                "all"
-            ]
-        }
-    }
-}
-```
-
-## Invalidácia
-
-> Rozmýšľam nad tým, že spravím invalidáciu aj na úrovní Ocelotu. Pokiaľ sa jedná o `POST`, `PUT`, `DELETE` a `PATCH` požiadavku, tak sa invaliduje cache pokiaľ to má daná routa nastavené (musí mať zoznam tagov). Ale toto tu zatiaľ nerozoberám, pretože bude potrebná aj invaldácia na strane služby (dáta sa menia nie len požiadavkami cez gateway).
-
-### Invalidácia na strane downstream služby
-
-```csharp
-
-public async Task DeleteProduct(TenantId tenantId, Guid id, CancellationToken cancellationToken)
-{
-    await _productRepository.DeleteProductAsync(tenantId, id, cancellationToken);
-    // 👇 Cache invalidation
-    // In project can exist some helper for this
-    await store.EvictByTagAsync($"product:{tenantId}:{id}");
-    await store.EvictByTagAsync($"products:{tenantId}");
-}
-
-```
-
 ## Redis
+
+By default is used `InMemoryCacheStore` but you can use `Redis` as well.
 
 ```csharp
 builder.Services.AddStackExchangeRedisOutputCache(options =>

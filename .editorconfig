@@ -25,6 +25,8 @@ indent_size = 4
 indent_style = space
 insert_final_newline = true
 charset = utf-8-bom
+dotnet_style_operator_placement_when_wrapping = beginning_of_line
+end_of_line = crlf
 
 # Project files
 [*.csproj]
@@ -97,8 +99,8 @@ dotnet_code_quality_unused_parameters = all:warning
 #### C# Coding Conventions ####
 
 # var preferences
-csharp_style_var_elsewhere = false:suggestion
-csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_elsewhere = true:suggestion
+csharp_style_var_for_built_in_types = true:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
 
 # Expression-bodied members

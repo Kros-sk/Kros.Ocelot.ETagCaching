@@ -6,9 +6,11 @@ using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Utilities.Collections;
 using Serilog;
+using Spectre.Console;
 using System;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 partial class Build : NukeBuild
@@ -78,6 +80,7 @@ partial class Build : NukeBuild
         .DependsOn(Compile)
         .Executes(() =>
         {
+            TestResultsDirectory.CreateOrCleanDirectory();
             DotNetTest(s => s
                 .SetConfiguration(Configuration)
                 .SetProjectFile(Solution)
@@ -85,6 +88,14 @@ partial class Build : NukeBuild
                 .SetResultsDirectory(TestResultsDirectory)
                 .When(AffectedOnly, ss => ss.SetProjectFile(AffectedProjectPath))
                 .EnableNoBuild());
+        });
+
+    Target PrintTestResults => _ => _
+        .TriggeredBy(Test)
+        .AssuredAfterFailure()
+        .Executes(() =>
+        {
+            ProcessTestResults(TestResultsDirectory);
         });
 
     Target Pack => _ => _
@@ -107,8 +118,8 @@ partial class Build : NukeBuild
         .DependsOn(Pack)
         .Executes(() =>
         {
-            string source = NugetApiUrl;
-            string targetPath = "*.nupkg";
+            var source = NugetApiUrl;
+            var targetPath = "*.nupkg";
             if (IsDebug)
             {
                 source = @"C:\LocalNuget";
@@ -121,6 +132,13 @@ partial class Build : NukeBuild
                 .SetApiKey(NugetApiKey)
                 .SetSkipDuplicate(true)
                 .SetTargetPath(OutputDirectory / targetPath));
+        });
+
+    Target MutationTest => _ => _
+        .DependsOn(Compile)
+        .Executes(() =>
+        {
+            Dotnet("stryker");
         });
 
     const string AffectedProjectName = "affected";
@@ -175,4 +193,51 @@ partial class Build : NukeBuild
     }
 
     bool IsDebug => Configuration == Configuration.Debug;
+
+    void ProcessTestResults(string directory)
+    {
+        var trxFiles = Directory.GetFiles(directory, "*.trx");
+        foreach (var file in trxFiles)
+        {
+            var xDocument = XDocument.Load(file);
+            var failedTestResults = xDocument.Descendants()
+                .Where(x => x.Name.LocalName == "UnitTestResult" && x.Attribute("outcome").Value != "Passed")
+                .Select(result => new
+                {
+                    FullTestName = result.Attribute("testName").Value,
+                    Outcome = result.Attribute("outcome").Value,
+                    ErrorMessage = result.Descendants()
+                        .FirstOrDefault(x => x.Name.LocalName == "Message")?
+                        .Value[..Math.Min(100, result.Descendants()
+                            .FirstOrDefault(x => x.Name.LocalName == "Message")?.Value.Length ?? 0)] + "..."
+                })
+                .ToList();
+
+            var groupedByTestClass = failedTestResults
+                .GroupBy(test => test.FullTestName[..test.FullTestName.LastIndexOf('.')])
+                .ToDictionary(group => group.Key, group => group.ToList());
+
+            foreach (var testClass in groupedByTestClass)
+            {
+                AnsiConsole.MarkupLine($"\n📂 [blue][underline]{testClass.Key}[/][/]");
+
+                foreach (var test in testClass.Value)
+                {
+                    var testName = test.FullTestName[(test.FullTestName.LastIndexOf('.') + 1)..];
+                    AnsiConsole.MarkupLine($"🧪 [red]{testName} ✖[/] [grey]{test.ErrorMessage}[/]");
+                }
+            }
+
+            var passedTests = xDocument.Descendants()
+                .Count(x => x.Name.LocalName == "UnitTestResult" && x.Attribute("outcome").Value == "Passed");
+            var failedTests = failedTestResults.Count;
+            var totalTests = passedTests + failedTests;
+
+            AnsiConsole.MarkupLine($"\n📊 [blue]Test results[/]");
+            var barChart = new BreakdownChart()
+                .Width(60).AddItem("Passed", passedTests, Color.Green).AddItem("Failed", failedTests, Color.Red);
+
+            AnsiConsole.Write(barChart);
+        }
+    }
 }

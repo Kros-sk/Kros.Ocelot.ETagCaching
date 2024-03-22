@@ -1,0 +1,23 @@
+name-template: 'Kros.Ocelot.ETagCaching v$NEXT_PATCH_VERSION ✈️'
+tag-template: 'ocelot_etag_caching_v$NEXT_PATCH_VERSION'
+categories:
+  - title: '🚀 Features'
+    labels:
+      - 'feature'
+      - 'enhancement'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'fix'
+      - 'bugfix'
+      - 'bug'
+  - title: '🧰 Maintenance'
+    labels: 
+      - 'refactor 🛠️'
+      - 'unittests'
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+template: |
+  ## Changes
+
+  $CHANGES
+
+  ---
