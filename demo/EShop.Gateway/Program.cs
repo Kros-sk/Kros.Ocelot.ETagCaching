@@ -11,8 +11,6 @@ builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
 var app = builder.Build();
 
-app.MapGet("/", () => Results.Redirect("/swagger"));
-
 app.UseSwaggerForOcelotUI();
 
 app.UseOcelot().Wait();
