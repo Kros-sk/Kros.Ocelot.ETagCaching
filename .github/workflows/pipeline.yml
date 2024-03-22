@@ -1,0 +1,45 @@
+name: Main pipeline
+
+on: 
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core if needed
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version:  8.0.x
+    - name: Restore
+      run: dotnet restore
+    - name: Build
+      run: ./build.sh --target Compile --configuration Release
+    - name: Test
+      run: ./build.sh --target Test --configuration Release
+    - name: Stryker
+      run: ./build.sh --target MutationTest --configuration Release
+
+  deploy-to-nuget:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core if needed
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version:  8.0.x
+      - name: Restore
+        run: dotnet restore
+      - name: Build
+        run: ./build.sh --target Compile --configuration Release
+      - name: Publish
+        run: ./build.sh --target Pack --configuration Release
+      - name: Publish to NuGet
+        run: ./build.sh --target Push --configuration Release --nuget-api-key ${{ secrets.NUGET_API_KEY }}
