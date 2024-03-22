@@ -16,6 +16,8 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version:  8.0.x
+    - name: Set execute permission for build.sh
+      run: chmod +x ./build.sh
     - name: Restore
       run: dotnet tool restore
     - name: Build
@@ -35,6 +37,8 @@ jobs:
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version:  8.0.x
+      - name: Set execute permission for build.sh
+        run: chmod +x ./build.sh
       - name: Build
         run: ./build.sh --target Compile --configuration Release
       - name: Publish
