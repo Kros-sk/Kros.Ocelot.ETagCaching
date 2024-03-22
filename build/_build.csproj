@@ -16,8 +16,4 @@
     <PackageReference Include="Spectre.Console" Version="0.48.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageDownload Include="Tyrannoport" Version="[0.3.21]" />
-  </ItemGroup>
-
 </Project>

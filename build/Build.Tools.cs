@@ -13,7 +13,4 @@ partial class Build
 
     [PathVariable("docker")]
     readonly Tool Docker;
-
-    [NuGetPackage("Tyrannoport", "Tyrannoport.dll")]
-    readonly Tool Tyrannoport;
 }
