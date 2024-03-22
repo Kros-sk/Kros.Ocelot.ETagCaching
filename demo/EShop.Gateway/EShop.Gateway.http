@@ -1,4 +1,4 @@
-@EShop.Gateway_HostAddress = http://localhost:5201
+@EShop.Gateway_HostAddress = http://localhost:8080
 
 GET {{EShop.Gateway_HostAddress}}/1/products
 Accept: application/json
@@ -17,3 +17,7 @@ Content-Type: application/json
   "category": "Phones",
   "price": 987
 }
+
+###
+GET {{EShop.Gateway_HostAddress}}/1/products/101
+Accept: application/json
