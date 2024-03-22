@@ -17,7 +17,7 @@ jobs:
       with:
         dotnet-version:  8.0.x
     - name: Restore
-      run: dotnet restore
+      run: dotnet tool restore
     - name: Build
       run: ./build.sh --target Compile --configuration Release
     - name: Test
@@ -35,8 +35,6 @@ jobs:
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version:  8.0.x
-      - name: Restore
-        run: dotnet restore
       - name: Build
         run: ./build.sh --target Compile --configuration Release
       - name: Publish
