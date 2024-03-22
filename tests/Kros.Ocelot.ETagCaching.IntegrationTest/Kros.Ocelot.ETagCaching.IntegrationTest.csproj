@@ -1,7 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <RootNamespace>Kros.Ocelot.ETagCaching.IntegrationTest</RootNamespace>
-    <NoWarn>$(NoWarn);KO001</NoWarn>
-  </PropertyGroup>
-</Project>

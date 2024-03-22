@@ -5,8 +5,10 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NetArchTest.Rules" />
+    <PackageReference Include="WireMock.Net" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\demo\EShop.Gateway\EShop.Gateway.csproj" />
     <ProjectReference Include="..\..\src\Kros.Ocelot.ETagCaching\Kros.Ocelot.ETagCaching.csproj" />
   </ItemGroup>
 </Project>
