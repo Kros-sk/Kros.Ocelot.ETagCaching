@@ -1,5 +1,4 @@
 ﻿using Kros.Ocelot.ETagCaching.Policies;
-using Microsoft.AspNetCore.Http;
 using System.Net;
 
 namespace Kros.Ocelot.ETagCaching.Test.Policies;

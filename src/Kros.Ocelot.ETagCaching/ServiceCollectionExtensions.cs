@@ -18,7 +18,6 @@ public static class ServiceCollectionExtensions
         Action<ETagCachingOptions> configure)
     {
         services.Configure(configure);
-        services.AddSingleton<ETagCachingMiddleware>();
         services.AddOutputCache();
         services.AddTransient<IETagCachingMiddleware, ETagCachingMiddleware>();
 
