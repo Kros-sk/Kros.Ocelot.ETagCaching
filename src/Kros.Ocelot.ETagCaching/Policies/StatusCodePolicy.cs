@@ -12,7 +12,7 @@ internal sealed class StatusCodePolicy(int statusCode) : IETagCachePolicy
         return ValueTask.CompletedTask;
     }
 
-    // Stryker disable block
+    // Stryker disable Block: results in an equivalent mutation
     public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
         return ValueTask.CompletedTask;

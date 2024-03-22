@@ -4,7 +4,7 @@ internal sealed class EmptyPolicy : IETagCachePolicy
 {
     public static IETagCachePolicy Instance { get; } = new EmptyPolicy();
 
-    // Stryker disable block
+    // Stryker disable Block: results in an equivalent mutation
     public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
         return ValueTask.CompletedTask;

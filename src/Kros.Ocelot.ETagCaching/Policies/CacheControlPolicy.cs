@@ -8,7 +8,7 @@ internal sealed class CacheControlPolicy(CacheControlHeaderValue cacheControl) :
 
     public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
-        // Stryker disable block
+        // Stryker disable Block: results in an equivalent mutation
         return ValueTask.CompletedTask;
     }
 
