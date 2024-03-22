@@ -300,7 +300,7 @@ public class ETagCachingMiddlewareShould
         return request;
     }
 
-    private static HttpContext CreateHttpContext()
+    private static DefaultHttpContext CreateHttpContext()
     {
         var context = new DefaultHttpContext();
 
@@ -319,7 +319,7 @@ public class ETagCachingMiddlewareShould
         return context;
     }
 
-    private static IOptions<IEnumerable<FakeDownstreamRoute>> CreateRoutes(IEnumerable<FakeDownstreamRoute> routes)
+    private static IOptions<List<FakeDownstreamRoute>> CreateRoutes(List<FakeDownstreamRoute> routes)
         => Options.Create(routes);
 
     private class DisallowNotModifyCachePolicy : IETagCachePolicy
