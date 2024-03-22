@@ -24,8 +24,22 @@ jobs:
       run: ./build.sh --target Compile --configuration Release
     - name: Test
       run: ./build.sh --target Test --configuration Release
+    - name: Upload test results to GitHub
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        path: '**/TestResults/*.trx'
+        name: 'Unit Tests'
+        reporter: 'dotnet-trx'
+        fail-on-error: true
+        token: ${{ secrets.GITHUB_TOKEN }}
     - name: Stryker
       run: ./build.sh --target MutationTest --configuration Release
+    - name: Upload Stryker Results as Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: stryker-results
+        path: '**/StrykerOutput/**/*.html'
 
   deploy-to-nuget:
     needs: build-and-test
