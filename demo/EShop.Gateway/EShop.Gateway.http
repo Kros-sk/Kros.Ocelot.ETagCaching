@@ -1,14 +1,14 @@
 @EShop.Gateway_HostAddress = http://localhost:5201
 
-GET {{EShop.Products_HostAddress}}/1/products
+GET {{EShop.Gateway_HostAddress}}/1/products
 Accept: application/json
 
 ###
-GET {{EShop.Products_HostAddress}}/1/products/1
+GET {{EShop.Gateway_HostAddress}}/1/products/1
 Accept: application/json
 
 ###
-POST {{EShop.Products_HostAddress}}/1/products
+POST {{EShop.Gateway_HostAddress}}/1/products
 Content-Type: application/json
 
 {

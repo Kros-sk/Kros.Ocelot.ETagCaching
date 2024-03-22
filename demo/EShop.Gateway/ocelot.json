@@ -6,7 +6,7 @@
             "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
+                    "Host": "eshop.products",
                     "Port": 5200
                 }
             ],
@@ -21,7 +21,7 @@
                 {
                     "Name": "Products",
                     "Version": "v1",
-                    "Url": "http://localhost:5200/swagger/v1/swagger.json"
+                    "Url": "http://eshop.products:5200/swagger/v1/swagger.json"
                 }
             ]
         }
