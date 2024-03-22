@@ -1,6 +1,7 @@
 {
     "Routes": [
         {
+            "Key": "products",
             "DownstreamPathTemplate": "/{tenantId}/products/{everything}",
             "UpstreamPathTemplate": "/{tenantId}/products/{everything}",
             "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
@@ -10,7 +11,8 @@
                     "Port": 5200
                 }
             ],
-            "SwaggerKey": "products"
+            "SwaggerKey": "products",
+            "CachePolicy": "products"
         }
     ],
 

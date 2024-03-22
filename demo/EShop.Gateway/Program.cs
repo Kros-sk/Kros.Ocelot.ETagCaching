@@ -1,4 +1,5 @@
-﻿using Ocelot.DependencyInjection;
+﻿using Kros.Ocelot.ETagCaching;
+using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,10 +10,23 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddOcelot();
 builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
+// caching
+builder.Services.AddOcelotETagCaching(conf =>
+{
+    conf.AddPolicy("products", builder =>
+    {
+        builder.Expire(TimeSpan.FromMinutes(2));
+        builder.TagTemplates("product:{tenantId}", "product:{tenantId}:{id}", "all:{tenantId}");
+    });
+});
+
 var app = builder.Build();
 
 app.UseSwaggerForOcelotUI();
 
-app.UseOcelot().Wait();
+app.UseOcelot(c =>
+{
+    c.AddETagCaching();
+}).Wait();
 
 app.Run();

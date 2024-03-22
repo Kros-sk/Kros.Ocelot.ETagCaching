@@ -9,13 +9,13 @@ namespace Kros.Ocelot.ETagCaching;
 
 // routeOptions can be removed when issue https://github.com/ThreeMammals/Ocelot/pull/1843 will be merged
 internal class ETagCachingMiddleware(
-    IOptions<IEnumerable<FakeDownstreamRoute>> routeOptions,
+    IOptions<List<FakeDownstreamRoute>> routeOptions,
     IOutputCacheStore cacheStore,
-    ETagCachingOptions cachingOptions) : IETagCachingMiddleware
+    IOptions<ETagCachingOptions> cachingOptions) : IETagCachingMiddleware
 {
     private readonly Dictionary<string, FakeDownstreamRoute> _routeOptions = routeOptions.Value.ToDictionary(r => r.Key, r => r);
     private readonly IOutputCacheStore _cacheStore = cacheStore;
-    private readonly ETagCachingOptions _cachingOptions = cachingOptions;
+    private readonly IOptions<ETagCachingOptions> _cachingOptions = cachingOptions;
 
     public Task InvokeAsync(HttpContext context, Func<Task> next)
     {
@@ -33,7 +33,7 @@ internal class ETagCachingMiddleware(
 
         if (!string.IsNullOrWhiteSpace(downstreamRoute.Key) && _routeOptions.TryGetValue(downstreamRoute.Key, out var route))
         {
-            policy = _cachingOptions.GetPolicy(route.CachePolicy);
+            policy = _cachingOptions.Value.GetPolicy(route.CachePolicy);
             return true;
         }
 
@@ -71,6 +71,7 @@ internal class ETagCachingMiddleware(
             {
                 await next();
                 await CacheDownstreamResponse(context, policy, cacheContext);
+                return;
             }
         }
 

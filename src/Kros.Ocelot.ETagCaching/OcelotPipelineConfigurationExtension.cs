@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Ocelot.Middleware;
 
-namespace Kros.Ocelot.ETagCaching.Policies;
+namespace Kros.Ocelot.ETagCaching;
 
 /// <summary>
 /// Extension for <see cref="OcelotPipelineConfiguration"/>.

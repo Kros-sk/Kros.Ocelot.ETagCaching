@@ -1,4 +1,5 @@
 ﻿using Kros.Ocelot.ETagCaching;
+using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -19,7 +20,19 @@ public static class ServiceCollectionExtensions
         services.Configure(configure);
         services.AddSingleton<ETagCachingMiddleware>();
         services.AddOutputCache();
+        services.AddTransient<IETagCachingMiddleware, ETagCachingMiddleware>();
+
+        AddFakeConfiguration(services);
 
         return services;
+    }
+
+    [Obsolete(
+        "This can be removed when issue https://github.com/ThreeMammals/Ocelot/pull/1843 will be release.",
+        DiagnosticId = "KO001")]
+    private static void AddFakeConfiguration(IServiceCollection services)
+    {
+        var configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
+        services.Configure<List<FakeDownstreamRoute>>(configuration.GetSection("Routes"));
     }
 }
