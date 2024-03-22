@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 **Please use Discussions page.**
-If you have question or feature request, please use [Discussions page](https://github.com/Burgyn/MMLib.SwaggerForOcelot/discussions).
+If you have question or feature request, please use [Discussions page](https://github.com/Kros-sk/Kros.Ocelot.ETagCaching/discussions).
 
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
