@@ -1,0 +1,19 @@
+@EShop.Products_HostAddress = http://localhost:5200
+
+GET {{EShop.Products_HostAddress}}/1/products
+Accept: application/json
+
+###
+GET {{EShop.Products_HostAddress}}/1/products/1
+Accept: application/json
+
+###
+POST {{EShop.Products_HostAddress}}/1/products
+Content-Type: application/json
+
+{
+  "name": "SAMSUNG Galaxy S21 Ultra 5G",
+  "description": "SAMSUNG Galaxy S21 Ultra 5G best smartphone",
+  "category": "Phones",
+  "price": 987
+}
