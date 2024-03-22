@@ -10,6 +10,7 @@ internal sealed class ExpirationPolicy(TimeSpan expiration) : IETagCachePolicy
         return ValueTask.CompletedTask;
     }
 
+    // Stryker disable block
     public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
         return ValueTask.CompletedTask;

@@ -12,6 +12,7 @@ internal sealed class CacheKeyPolicy(Func<DownstreamRequest, string> keyGenerato
         return ValueTask.CompletedTask;
     }
 
+    // Stryker disable block
     public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
         return ValueTask.CompletedTask;

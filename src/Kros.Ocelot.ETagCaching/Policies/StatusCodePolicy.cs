@@ -6,14 +6,15 @@ internal sealed class StatusCodePolicy(int statusCode) : IETagCachePolicy
 {
     private readonly int _statusCode = statusCode;
 
-    public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
-    {
-        return ValueTask.CompletedTask;
-    }
-
     public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
         context.StatusCode = (HttpStatusCode)_statusCode;
+        return ValueTask.CompletedTask;
+    }
+
+    // Stryker disable block
+    public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
+    {
         return ValueTask.CompletedTask;
     }
 

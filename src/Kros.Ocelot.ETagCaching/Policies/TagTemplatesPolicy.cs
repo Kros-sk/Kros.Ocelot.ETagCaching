@@ -21,6 +21,7 @@ internal sealed class TagTemplatesPolicy(string[] tagTemplates) : IETagCachePoli
         return ValueTask.CompletedTask;
     }
 
+    // Stryker disable block
     public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
         return ValueTask.CompletedTask;

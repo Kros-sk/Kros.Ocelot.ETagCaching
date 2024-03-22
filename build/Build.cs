@@ -134,6 +134,13 @@ partial class Build : NukeBuild
                 .SetTargetPath(OutputDirectory / targetPath));
         });
 
+    Target MutationTest => _ => _
+        .DependsOn(Compile)
+        .Executes(() =>
+        {
+            Dotnet("stryker");
+        });
+
     const string AffectedProjectName = "affected";
     const string AffectedProjectFullName = AffectedProjectName + ".proj";
     static AbsolutePath AffectedProjectPath => RootDirectory / AffectedProjectFullName;

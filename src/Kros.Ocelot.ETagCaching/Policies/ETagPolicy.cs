@@ -6,6 +6,14 @@ internal sealed class ETagPolicy(Func<ETagCacheContext, EntityTagHeaderValue> et
 {
     private readonly Func<ETagCacheContext, EntityTagHeaderValue> _etagGenerator = etagGenerator;
 
+    public ValueTask ServeDownstreamResponseAsync(ETagCacheContext context, CancellationToken cancellationToken)
+    {
+        context.ETag = _etagGenerator(context);
+        context.ResponseHeaders[HttpHeadersHelper.ETagHeaderName] = context.ETag.ToString();
+        return ValueTask.CompletedTask;
+    }
+
+    // Stryker disable block
     public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
         return ValueTask.CompletedTask;
@@ -13,13 +21,6 @@ internal sealed class ETagPolicy(Func<ETagCacheContext, EntityTagHeaderValue> et
 
     public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
-        return ValueTask.CompletedTask;
-    }
-
-    public ValueTask ServeDownstreamResponseAsync(ETagCacheContext context, CancellationToken cancellationToken)
-    {
-        context.ETag = _etagGenerator(context);
-        context.ResponseHeaders[HttpHeadersHelper.ETagHeaderName] = context.ETag.ToString();
         return ValueTask.CompletedTask;
     }
 }

@@ -13,4 +13,7 @@ partial class Build
 
     [PathVariable("docker")]
     readonly Tool Docker;
+
+    [PathVariable("dotnet")]
+    readonly Tool Dotnet;
 }
