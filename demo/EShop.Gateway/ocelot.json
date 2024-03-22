@@ -15,9 +15,8 @@
             "CachePolicy": "products"
         },
         {
-            "Key": "products",
             "DownstreamPathTemplate": "/{tenantId}/products/{everything}",
-            "UpstreamPathTemplate": "withoutcache/{tenantId}/products/{everything}",
+            "UpstreamPathTemplate": "/withoutcache/{tenantId}/products/{everything}",
             "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
             "DownstreamHostAndPorts": [
                 {

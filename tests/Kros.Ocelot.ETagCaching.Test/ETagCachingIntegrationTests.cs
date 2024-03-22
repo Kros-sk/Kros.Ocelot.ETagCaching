@@ -18,7 +18,7 @@ public class ETagCachingIntegrationTests(DefaultWebApplicationFactory factory)
     }
 
     [Fact]
-    public async Task EndpointWithCachePolicyShouldReturn200OKWhenETagIsInvalid()
+    public async Task EndpointWithCachePolicyShouldReturn200OK_WhenETagIsInvalid()
     {
         using var client = factory.CreateClient();
 
@@ -31,7 +31,7 @@ public class ETagCachingIntegrationTests(DefaultWebApplicationFactory factory)
     }
 
     [Fact]
-    public async Task EndpointWithCachePolicyShouldReturn200OKWhenIfNoneMatchHeaderIsNotPresent()
+    public async Task EndpointWithCachePolicyShouldReturn200OK_WhenIfNoneMatchHeaderIsNotPresent()
     {
         using var client = factory.CreateClient();
 
@@ -51,7 +51,33 @@ public class ETagCachingIntegrationTests(DefaultWebApplicationFactory factory)
         response.Headers.Contains("ETag").Should().BeFalse();
     }
 
-    // Endpoint with cache policy should return downstream data when ETag is invalid
+    [Fact]
+    public async Task EndpointWithCachePolicyShouldReturnDownstreamData_WhenIfNoneMatchHeaderIsNotPresent()
+    {
+        using var client = factory.CreateClient();
 
-    // Endpoint with cache policy should return 304 Not Modified when ETag is valid
+        var response = await client.GetAsync("/1/products");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Be("this is a body");
+    }
+
+    [Fact]
+    public async Task EndpointWithCachePolicyShouldReturn304NotModified_WhenETagIsValid()
+    {
+        using var client = factory.CreateClient();
+
+        var response = await client.GetAsync("/1/products");
+
+        response.EnsureSuccessStatusCode();
+        var etag = response.Headers.ETag!.Tag;
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/1/products");
+        request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue(etag));
+
+        var notModifiedResponse = await client.SendAsync(request);
+
+        notModifiedResponse.StatusCode.Should().Be(HttpStatusCode.NotModified);
+    }
 }
