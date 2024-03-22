@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Kros.Ocelot.ETagCaching.Test;
@@ -9,6 +10,8 @@ public class ServiceCollectionExtensionsShould
     public async Task AddETagCaching()
     {
         var services = new ServiceCollection();
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
+
         services.AddOcelotETagCaching(conf =>
         {
             conf.AddPolicy("getAllProduct", builder =>
@@ -35,6 +38,7 @@ public class ServiceCollectionExtensionsShould
     public async Task AddETagCachingWithoutDefaultPolicy()
     {
         var services = new ServiceCollection();
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
         services.AddOcelotETagCaching(conf =>
         {
             conf.AddPolicy("getAllProduct",
@@ -58,6 +62,7 @@ public class ServiceCollectionExtensionsShould
     public void ThrowExceptionWhenPolicyWithTheSameNameIsAdded()
     {
         var services = new ServiceCollection();
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
         Action? act = null;
 
         services.AddOcelotETagCaching(conf =>
