@@ -172,7 +172,7 @@ public class DefaultPolicyShould
     {
         var codes = Enum.GetValues(typeof(HttpStatusCode));
         var data = new TheoryData<HttpStatusCode>();
-        foreach (HttpStatusCode code in codes.Cast<HttpStatusCode>())
+        foreach (var code in codes.Cast<HttpStatusCode>())
         {
             if (code != HttpStatusCode.OK)
             {

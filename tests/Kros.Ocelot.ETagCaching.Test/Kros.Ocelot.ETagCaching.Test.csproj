@@ -1,10 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>Kros.Ocelot.ETagCaching.Test</RootNamespace>
     <NoWarn>$(NoWarn);KO001</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NetArchTest.Rules" />
+    <PackageReference Include="PublicApiGenerator" />
+    <PackageReference Include="Verify" />
+    <PackageReference Include="Verify.Xunit" />
     <PackageReference Include="WireMock.Net" />
   </ItemGroup>
   <ItemGroup>
