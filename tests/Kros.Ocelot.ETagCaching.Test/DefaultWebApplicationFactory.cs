@@ -43,7 +43,7 @@ public class DefaultWebApplicationFactory : WebApplicationFactory<IAssemblyMarke
     {
         var ret = new Dictionary<string, string?>();
 
-        for (var i = 0; i < 2; i++)
+        for (var i = 0; i < 3; i++)
         {
             ret[$"Routes:{i}:DownstreamHostAndPorts:0:Host"] = "localhost";
             ret[$"Routes:{i}:DownstreamHostAndPorts:0:Port"] = WireMockServer.Ports[0].ToString();
