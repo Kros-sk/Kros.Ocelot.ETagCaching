@@ -1,0 +1,72 @@
+﻿[assembly: System.Reflection.AssemblyMetadata("RepositoryUrl", "https://github.com/Kros-sk/Kros.Ocelot.ETagCaching")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Kros.Ocelot.ETagCaching.Test")]
+[assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v8.0", FrameworkDisplayName=".NET 8.0")]
+namespace Kros.Ocelot.ETagCaching
+{
+    [System.Runtime.CompilerServices.RequiredMember]
+    public sealed class ETagCacheContext
+    {
+        [System.Obsolete("Constructors of types with required members are not supported in this version of " +
+            "your compiler.", true)]
+        [System.Runtime.CompilerServices.CompilerFeatureRequired("RequiredMembers")]
+        public ETagCacheContext() { }
+        public bool AllowCacheResponseETag { get; set; }
+        public bool AllowNotModified { get; set; }
+        public System.Collections.Generic.Dictionary<string, object?> CacheEntryExtraProps { get; }
+        public Microsoft.AspNetCore.Http.HeaderDictionary CachedResponseHeaders { get; }
+        public Ocelot.Middleware.DownstreamResponse? DownstreamResponse { get; set; }
+        public Microsoft.Net.Http.Headers.EntityTagHeaderValue ETag { get; set; }
+        public System.TimeSpan ETagExpirationTimeSpan { get; set; }
+        public bool EnableETagCache { get; set; }
+        public Microsoft.AspNetCore.Http.HeaderDictionary ResponseHeaders { get; }
+        public System.Net.HttpStatusCode StatusCode { get; set; }
+        public System.Collections.Generic.HashSet<string> Tags { get; }
+        [System.Runtime.CompilerServices.RequiredMember]
+        public Ocelot.Request.Middleware.DownstreamRequest DownstreamRequest { get; init; }
+        [System.Runtime.CompilerServices.RequiredMember]
+        public Microsoft.AspNetCore.Http.Features.IFeatureCollection RequestFeatures { get; init; }
+        [System.Runtime.CompilerServices.RequiredMember]
+        public System.IServiceProvider RequestServices { get; init; }
+        [System.Runtime.CompilerServices.RequiredMember]
+        public System.Collections.Generic.List<Ocelot.DownstreamRouteFinder.UrlMatcher.PlaceholderNameAndValue> TemplatePlaceholderNameAndValues { get; init; }
+        public override string ToString() { }
+    }
+    public sealed class ETagCacheFeature
+    {
+        public Kros.Ocelot.ETagCaching.ETagCacheContext ETagCacheContext { get; }
+    }
+    public sealed class ETagCachePolicyBuilder
+    {
+        public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder AddPolicy(Kros.Ocelot.ETagCaching.IETagCachePolicy policy) { }
+        public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder AddPolicy<TPolicy>()
+            where TPolicy : Kros.Ocelot.ETagCaching.IETagCachePolicy, new () { }
+        public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder CacheControl(Microsoft.Net.Http.Headers.CacheControlHeaderValue cacheControl) { }
+        public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder CacheEntryExtraProp(System.Action<System.Collections.Generic.Dictionary<string, object>> extraProps) { }
+        public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder CacheKey(System.Func<Ocelot.Request.Middleware.DownstreamRequest, string> keyGenerator) { }
+        public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder ETag(System.Func<Kros.Ocelot.ETagCaching.ETagCacheContext, Microsoft.Net.Http.Headers.EntityTagHeaderValue> etagGenerator) { }
+        public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder Expire(System.TimeSpan expiration) { }
+        public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder StatusCode(int statusCode) { }
+        public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder TagTemplates(params string[] tagTemplates) { }
+    }
+    public sealed class ETagCachingOptions
+    {
+        public ETagCachingOptions() { }
+        public Kros.Ocelot.ETagCaching.ETagCachingOptions AddDefaultPolicy(string policyName) { }
+        public Kros.Ocelot.ETagCaching.ETagCachingOptions AddPolicy(string policyName, System.Action<Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder> builder, bool excludeDefaultPolicy = false) { }
+        public Kros.Ocelot.ETagCaching.IETagCachePolicy GetPolicy(string policyName) { }
+    }
+    public interface IETagCachePolicy
+    {
+        System.Threading.Tasks.ValueTask CacheETagAsync(Kros.Ocelot.ETagCaching.ETagCacheContext context, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.ValueTask ServeDownstreamResponseAsync(Kros.Ocelot.ETagCaching.ETagCacheContext context, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.ValueTask ServeNotModifiedAsync(Kros.Ocelot.ETagCaching.ETagCacheContext context, System.Threading.CancellationToken cancellationToken);
+    }
+    public interface IETagCachingMiddleware
+    {
+        System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context, System.Func<System.Threading.Tasks.Task> next);
+    }
+    public static class OcelotPipelineConfigurationExtension
+    {
+        public static void AddETagCaching(this Ocelot.Middleware.OcelotPipelineConfiguration pipelineConfiguration) { }
+    }
+}

@@ -4,6 +4,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);KO001</NoWarn>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Ocelot" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Kros.Ocelot.ETagCaching.Test" />
+  </ItemGroup>
 </Project>

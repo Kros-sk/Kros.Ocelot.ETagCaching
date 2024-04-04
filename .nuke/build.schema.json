@@ -95,7 +95,9 @@
               "AffectedProjects",
               "Clean",
               "Compile",
+              "MutationTest",
               "Pack",
+              "PrintTestResults",
               "Push",
               "Restore",
               "Test"
@@ -115,7 +117,9 @@
               "AffectedProjects",
               "Clean",
               "Compile",
+              "MutationTest",
               "Pack",
+              "PrintTestResults",
               "Push",
               "Restore",
               "Test"
