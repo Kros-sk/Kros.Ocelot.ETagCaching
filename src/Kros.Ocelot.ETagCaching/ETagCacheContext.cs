@@ -69,7 +69,7 @@ public sealed class ETagCacheContext
     public Dictionary<string, object?> CacheEntryExtraProps { get; } = [];
 
     /// <summary>
-    /// Headers which should be added to the response when it is served from the downstream service (No from cache).
+    /// Headers which should be added to the response when it is served from the downstream service (not from cache).
     /// </summary>
     public HeaderDictionary ResponseHeaders { get; } = [];
 
