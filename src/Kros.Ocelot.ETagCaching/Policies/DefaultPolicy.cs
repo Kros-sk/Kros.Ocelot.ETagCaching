@@ -53,8 +53,8 @@ internal sealed class DefaultPolicy : IETagCachePolicy
 
     private static void AddCacheHeaders(HeaderDictionary headers, string etag)
     {
-        headers[HttpHeadersHelper.CacheControlHeaderName] = CacheControlHeaderValue.PrivateString;
-        headers[HttpHeadersHelper.ETagHeaderName] = etag;
+        headers[HeaderNames.CacheControl] = CacheControlHeaderValue.PrivateString;
+        headers[HeaderNames.ETag] = etag;
     }
 
     private static bool AllowCacheResponseETag(ETagCacheContext context)
@@ -70,7 +70,7 @@ internal sealed class DefaultPolicy : IETagCachePolicy
             return false;
         }
 
-        if (HaveCacheHeaderValue(context.DownstreamRequest.Headers, HttpHeadersHelper.NoStoreHeaderValue))
+        if (HaveCacheHeaderValue(context.DownstreamRequest.Headers, CacheControlHeaderValue.NoStoreString))
         {
             return false;
         }
@@ -79,10 +79,10 @@ internal sealed class DefaultPolicy : IETagCachePolicy
     }
 
     private static bool HaveRequestNoCacheHeader(ETagCacheContext context)
-        => HaveCacheHeaderValue(context.DownstreamRequest.Headers, HttpHeadersHelper.NoCacheHeaderValue);
+        => HaveCacheHeaderValue(context.DownstreamRequest.Headers, CacheControlHeaderValue.NoCacheString);
 
     private static bool HaveCacheHeaderValue(System.Net.Http.Headers.HttpHeaders headers, string value)
-        => headers.TryGetValues(HttpHeadersHelper.CacheControlHeaderName, out var values)
+        => headers.TryGetValues(HeaderNames.CacheControl, out var values)
             && values.Contains(value);
 
     private static bool IsGetMethod(ETagCacheContext context)
@@ -108,7 +108,7 @@ internal sealed class DefaultPolicy : IETagCachePolicy
     private static bool AllowServeFromCache(ETagCacheContext context, [NotNullWhen(true)] out EntityTagHeaderValue? entityTag)
     {
         entityTag = null;
-        if (context.DownstreamRequest.Headers.TryGetValues(HttpHeadersHelper.IfNoneMatchHeaderName, out var values)
+        if (context.DownstreamRequest.Headers.TryGetValues(HeaderNames.IfNoneMatch, out var values)
             && values.Count() == 1)
         {
             return EntityTagHeaderValue.TryParse(values.First(), out entityTag);
