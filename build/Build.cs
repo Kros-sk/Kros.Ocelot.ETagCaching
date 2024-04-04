@@ -27,7 +27,7 @@ partial class Build : NukeBuild
     readonly AbsolutePath TestResultsDirectory = RootDirectory / "TestResults";
 
     [Parameter("Nuget API Url")]
-    readonly string NugetApiUrl = "https://www.nuget.org/api/v2/";
+    readonly string NugetApiUrl = "https://www.nuget.org/api/v2/package/";
 
     [Parameter("Nuget API Key for this source")]
     readonly string NugetApiKey = "AZ";
