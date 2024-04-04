@@ -1,9 +1,9 @@
 ﻿namespace Kros.Ocelot.ETagCaching.Policies;
 
-internal sealed class CacheEntryExtraPropsPolicy(IEnumerable<KeyValuePair<string, object>> extraProps)
+internal sealed class CacheEntryExtraPropsPolicy(Dictionary<string, object> extraProps)
     : IETagCachePolicy
 {
-    private readonly IEnumerable<KeyValuePair<string, object>> _extraProps = extraProps;
+    private readonly Dictionary<string, object> _extraProps = extraProps;
 
     public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {

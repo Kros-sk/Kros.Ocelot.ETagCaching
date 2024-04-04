@@ -39,11 +39,13 @@ namespace Kros.Ocelot.ETagCaching
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder AddPolicy(Kros.Ocelot.ETagCaching.IETagCachePolicy policy) { }
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder AddPolicy<TPolicy>()
             where TPolicy : Kros.Ocelot.ETagCaching.IETagCachePolicy, new () { }
+        public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder Cache() { }
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder CacheControl(Microsoft.Net.Http.Headers.CacheControlHeaderValue cacheControl) { }
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder CacheEntryExtraProp(System.Action<System.Collections.Generic.Dictionary<string, object>> extraProps) { }
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder CacheKey(System.Func<Ocelot.Request.Middleware.DownstreamRequest, string> keyGenerator) { }
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder ETag(System.Func<Kros.Ocelot.ETagCaching.ETagCacheContext, Microsoft.Net.Http.Headers.EntityTagHeaderValue> etagGenerator) { }
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder Expire(System.TimeSpan expiration) { }
+        public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder NoCache() { }
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder StatusCode(int statusCode) { }
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder TagTemplates(params string[] tagTemplates) { }
     }
