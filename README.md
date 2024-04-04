@@ -91,6 +91,17 @@ app.UseOcelot(c =>
 app.Run();
 ```
 
+## Tag templates
+
+Tag tamplates are use to create tag for cache entry. It is used to invalidate cache entries.
+Tag is created by replacing placeholders with values from request route parameters.
+
+For example, for route `/api/{tenantId}/products/{id}` and tag template `product:{tenantId}:{id}` the tag will be `product:1:2`.
+
+> Cache invalidation will be added in the next pull request.
+
+```csharp
+
 ## Redis
 
 By default is used `InMemoryCacheStore` but you can use `Redis` as well.
