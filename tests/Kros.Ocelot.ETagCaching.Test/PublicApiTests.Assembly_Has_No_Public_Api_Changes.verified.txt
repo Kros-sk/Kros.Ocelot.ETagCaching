@@ -47,6 +47,13 @@ namespace Kros.Ocelot.ETagCaching
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder StatusCode(int statusCode) { }
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder TagTemplates(params string[] tagTemplates) { }
     }
+    public sealed class ETagCachingOptions
+    {
+        public ETagCachingOptions() { }
+        public Kros.Ocelot.ETagCaching.ETagCachingOptions AddDefaultPolicy(string policyName) { }
+        public Kros.Ocelot.ETagCaching.ETagCachingOptions AddPolicy(string policyName, System.Action<Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder> builder, bool excludeDefaultPolicy = false) { }
+        public Kros.Ocelot.ETagCaching.IETagCachePolicy GetPolicy(string policyName) { }
+    }
     public interface IETagCachePolicy
     {
         System.Threading.Tasks.ValueTask CacheETagAsync(Kros.Ocelot.ETagCaching.ETagCacheContext context, System.Threading.CancellationToken cancellationToken);

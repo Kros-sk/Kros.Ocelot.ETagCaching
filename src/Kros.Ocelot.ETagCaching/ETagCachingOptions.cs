@@ -1,7 +1,6 @@
-﻿using Kros.Ocelot.ETagCaching;
-using Kros.Ocelot.ETagCaching.Policies;
+﻿using Kros.Ocelot.ETagCaching.Policies;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace Kros.Ocelot.ETagCaching;
 
 /// <summary>
 /// Options for the ETag caching.
@@ -25,6 +24,8 @@ public sealed class ETagCachingOptions
         Action<ETagCachePolicyBuilder> builder,
         bool excludeDefaultPolicy = false)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(policyName, nameof(policyName));
+
         if (_policies.ContainsKey(policyName))
         {
             throw new ArgumentException($"Policy with name '{policyName}' already exists.", policyName);
