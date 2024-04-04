@@ -29,6 +29,7 @@ namespace Kros.Ocelot.ETagCaching
         public System.IServiceProvider RequestServices { get; init; }
         [System.Runtime.CompilerServices.RequiredMember]
         public System.Collections.Generic.List<Ocelot.DownstreamRouteFinder.UrlMatcher.PlaceholderNameAndValue> TemplatePlaceholderNameAndValues { get; init; }
+        public override string ToString() { }
     }
     public sealed class ETagCacheFeature
     {

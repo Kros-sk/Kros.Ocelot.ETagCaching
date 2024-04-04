@@ -1,7 +1,7 @@
 ﻿using Kros.Ocelot.ETagCaching.Policies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Ocelot.Configuration;
@@ -19,7 +19,8 @@ public class ETagCachingMiddlewareShould
         var middleware = new ETagCachingMiddleware(
             CreateRoutes([new("products", "productsPolicy")]),
             store,
-            Options.Create(ETagCachingOptions.Create()));
+            Options.Create(ETagCachingOptions.Create()),
+            NullLogger<ETagCachingMiddleware>.Instance);
         var context = CreateHttpContext();
 
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
@@ -35,7 +36,8 @@ public class ETagCachingMiddlewareShould
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             Options.Create(ETagCachingOptions.Create()
-                .AddPolicy("productsPolicy", builder => builder.AddPolicy(EnableCachePolicy.Disabled))));
+                .AddPolicy("productsPolicy", builder => builder.AddPolicy(EnableCachePolicy.Disabled))),
+            NullLogger<ETagCachingMiddleware>.Instance);
 
         var context = CreateHttpContext();
 
@@ -52,7 +54,8 @@ public class ETagCachingMiddlewareShould
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             Options.Create(ETagCachingOptions.Create()
-                .AddDefaultPolicy("productsPolicy")));
+                .AddDefaultPolicy("productsPolicy")),
+            NullLogger<ETagCachingMiddleware>.Instance);
 
         var context = CreateHttpContext();
 
@@ -69,7 +72,8 @@ public class ETagCachingMiddlewareShould
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             Options.Create(ETagCachingOptions.Create()
-                .AddPolicy("productsPolicy", b => b.ETag(_ => new("\"123\"")))));
+                .AddPolicy("productsPolicy", b => b.ETag(_ => new("\"123\"")))),
+            NullLogger<ETagCachingMiddleware>.Instance);
 
         var context = CreateHttpContext();
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
@@ -88,7 +92,8 @@ public class ETagCachingMiddlewareShould
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             Options.Create(ETagCachingOptions.Create()
-                .AddDefaultPolicy("productsPolicy")));
+                .AddDefaultPolicy("productsPolicy")),
+            NullLogger<ETagCachingMiddleware>.Instance);
 
         var context = CreateHttpContext();
         context.Items.UpsertDownstreamRequest(CreateRequest([("If-None-Match", "\"123\"")]));
@@ -108,7 +113,8 @@ public class ETagCachingMiddlewareShould
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             Options.Create(ETagCachingOptions.Create()
-                .AddPolicy("productsPolicy", b => b.AddPolicy<DisallowNotModifyCachePolicy>())));
+                .AddPolicy("productsPolicy", b => b.AddPolicy<DisallowNotModifyCachePolicy>())),
+            NullLogger<ETagCachingMiddleware>.Instance);
 
         var context = CreateHttpContext();
         context.Items.UpsertDownstreamRequest(CreateRequest([("If-None-Match", "\"123\"")]));
@@ -128,7 +134,8 @@ public class ETagCachingMiddlewareShould
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             Options.Create(ETagCachingOptions.Create()
-                .AddDefaultPolicy("productsPolicy")));
+                .AddDefaultPolicy("productsPolicy")),
+            NullLogger<ETagCachingMiddleware>.Instance);
 
         var context = CreateHttpContext();
         context.Items.UpsertDownstreamRequest(CreateRequest([("If-None-Match", "\"456\"")]));
@@ -147,7 +154,8 @@ public class ETagCachingMiddlewareShould
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             Options.Create(ETagCachingOptions.Create()
-                .AddDefaultPolicy("productsPolicy")));
+                .AddDefaultPolicy("productsPolicy")),
+            NullLogger<ETagCachingMiddleware>.Instance);
 
         var context = CreateHttpContext();
 
@@ -166,7 +174,8 @@ public class ETagCachingMiddlewareShould
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             Options.Create(ETagCachingOptions.Create()
-                .AddPolicy("productsPolicy", b => b.ETag(_ => new("\"123\"")))));
+                .AddPolicy("productsPolicy", b => b.ETag(_ => new("\"123\"")))),
+            NullLogger<ETagCachingMiddleware>.Instance);
 
         var context = CreateHttpContext();
 
@@ -184,7 +193,8 @@ public class ETagCachingMiddlewareShould
         var middleware = new ETagCachingMiddleware(
             CreateRoutes([new("products", "productsPolicy")]),
             store,
-            Options.Create(ETagCachingOptions.Create()));
+            Options.Create(ETagCachingOptions.Create()),
+            NullLogger<ETagCachingMiddleware>.Instance);
 
         var context = CreateHttpContext();
         var nextCalled = false;
@@ -206,7 +216,8 @@ public class ETagCachingMiddlewareShould
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             Options.Create(ETagCachingOptions.Create()
-                .AddPolicy("productsPolicy", builder => builder.AddPolicy(EnableCachePolicy.Disabled))));
+                .AddPolicy("productsPolicy", builder => builder.AddPolicy(EnableCachePolicy.Disabled))),
+            NullLogger<ETagCachingMiddleware>.Instance);
 
         var context = CreateHttpContext();
         var nextCalled = false;
@@ -228,7 +239,8 @@ public class ETagCachingMiddlewareShould
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             Options.Create(ETagCachingOptions.Create()
-                .AddDefaultPolicy("productsPolicy")));
+                .AddDefaultPolicy("productsPolicy")),
+            NullLogger<ETagCachingMiddleware>.Instance);
 
         var context = CreateHttpContext();
         var nextCalled = false;
@@ -251,7 +263,8 @@ public class ETagCachingMiddlewareShould
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             Options.Create(ETagCachingOptions.Create()
-                .AddDefaultPolicy("productsPolicy")));
+                .AddDefaultPolicy("productsPolicy")),
+            NullLogger<ETagCachingMiddleware>.Instance);
 
         var context = CreateHttpContext();
         context.Items.UpsertDownstreamRequest(CreateRequest([("If-None-Match", "\"123\"")]));
@@ -274,7 +287,8 @@ public class ETagCachingMiddlewareShould
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             Options.Create(ETagCachingOptions.Create()
-                .AddPolicy("productsPolicy", b => b.ETag(_ => new("\"123\"")))));
+                .AddPolicy("productsPolicy", b => b.ETag(_ => new("\"123\"")))),
+            NullLogger<ETagCachingMiddleware>.Instance);
 
         var context = CreateHttpContext();
 

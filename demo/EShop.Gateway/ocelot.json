@@ -1,9 +1,9 @@
 {
     "Routes": [
         {
-            "Key": "products",
-            "DownstreamPathTemplate": "/{tenantId}/products/{everything}",
-            "UpstreamPathTemplate": "/{tenantId}/products/{everything}",
+            "Key": "getProducts",
+            "DownstreamPathTemplate": "/{tenantId}/products/",
+            "UpstreamPathTemplate": "/{tenantId}/products/",
             "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
             "DownstreamHostAndPorts": [
                 {
@@ -12,7 +12,21 @@
                 }
             ],
             "SwaggerKey": "products",
-            "CachePolicy": "products"
+            "CachePolicy": "getProducts"
+        },
+        {
+            "Key": "getProduct",
+            "DownstreamPathTemplate": "/{tenantId}/products/{id}",
+            "UpstreamPathTemplate": "/{tenantId}/products/{id}",
+            "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "eshop.products",
+                    "Port": 5200
+                }
+            ],
+            "SwaggerKey": "products",
+            "CachePolicy": "getProduct"
         },
         {
             "DownstreamPathTemplate": "/{tenantId}/products/{everything}",

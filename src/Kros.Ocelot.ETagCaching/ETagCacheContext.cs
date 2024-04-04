@@ -5,6 +5,7 @@ using Ocelot.DownstreamRouteFinder.UrlMatcher;
 using Ocelot.Middleware;
 using Ocelot.Request.Middleware;
 using System.Net;
+using System.Text;
 
 namespace Kros.Ocelot.ETagCaching;
 
@@ -91,4 +92,34 @@ public sealed class ETagCacheContext
     internal ETagCacheEntry CacheEntry { get; set; } = default!;
 
     internal string CacheKey { get; set; } = default!;
+
+    /// <summary>
+    /// To string.
+    /// </summary>
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine(nameof(ETagCacheContext));
+        sb.AppendLine("{");
+        sb.AppendFormat("\t{0}: {1}", nameof(ETag), ETag);
+        sb.AppendLine();
+        sb.AppendFormat("\t{0}: \"{1}\"", nameof(CacheKey), CacheKey);
+        sb.AppendLine();
+        sb.AppendFormat("\t{0}: {1}", nameof(EnableETagCache), EnableETagCache);
+        sb.AppendLine();
+        sb.AppendFormat("\t{0}: {1}", nameof(AllowNotModified), AllowNotModified);
+        sb.AppendLine();
+        sb.AppendFormat("\t{0}: {1}", nameof(AllowCacheResponseETag), AllowCacheResponseETag);
+        sb.AppendLine();
+        sb.AppendFormat("\t{0}: \"{1}\"", nameof(ETagExpirationTimeSpan), ETagExpirationTimeSpan);
+        sb.AppendLine();
+        sb.AppendFormat("\t{0}: [{1}]", nameof(Tags), string.Join(",", Tags));
+        sb.AppendLine();
+        sb.AppendFormat("\t{0}: {1}", nameof(StatusCode), StatusCode);
+        sb.AppendLine();
+        sb.AppendLine("}");
+
+        return sb.ToString();
+    }
 }

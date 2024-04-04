@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Ocelot.Middleware;
 using System.Diagnostics.CodeAnalysis;
@@ -7,17 +9,20 @@ using System.Diagnostics.CodeAnalysis;
 namespace Kros.Ocelot.ETagCaching;
 
 // routeOptions can be removed when issue https://github.com/ThreeMammals/Ocelot/pull/1843 will be merged
-internal class ETagCachingMiddleware(
+internal partial class ETagCachingMiddleware(
     IOptions<List<FakeDownstreamRoute>> routeOptions,
     IOutputCacheStore cacheStore,
-    IOptions<ETagCachingOptions> cachingOptions) : IETagCachingMiddleware
+    IOptions<ETagCachingOptions> cachingOptions,
+    ILogger<ETagCachingMiddleware> logger) : IETagCachingMiddleware
 {
     private readonly Dictionary<string, FakeDownstreamRoute> _routeOptions = routeOptions.Value.ToDictionary(r => r.Key, r => r);
     private readonly IOutputCacheStore _cacheStore = cacheStore;
     private readonly IOptions<ETagCachingOptions> _cachingOptions = cachingOptions;
+    private readonly ILogger<ETagCachingMiddleware> _logger = logger;
 
     public Task InvokeAsync(HttpContext context, Func<Task> next)
     {
+        LogMiddlewareStart(context.Request.GetDisplayUrl());
         if (TryGetPolicy(context, out var policy))
         {
             return InvokeCaching(context, policy, next);
@@ -42,10 +47,13 @@ internal class ETagCachingMiddleware(
 
     private async Task InvokeCaching(HttpContext context, IETagCachePolicy policy, Func<Task> next)
     {
+        LogInvokeCaching();
         var cacheContext = CreateContext(context);
         context.Features.Set(new ETagCacheFeature(cacheContext));
 
         await policy.CacheETagAsync(cacheContext, context.RequestAborted);
+
+        LogETagCacheContext(cacheContext);
 
         if (cacheContext.EnableETagCache)
         {
@@ -61,6 +69,8 @@ internal class ETagCachingMiddleware(
                         await policy.ServeNotModifiedAsync(cacheContext, context.RequestAborted);
                         CreateNotModifyResponse(context, cacheContext);
 
+                        LogServeNotModified(cacheContext);
+
                         return;
                     }
                 }
@@ -68,6 +78,8 @@ internal class ETagCachingMiddleware(
 
             if (cacheContext.AllowCacheResponseETag)
             {
+                LogGetResourceFromDownstream(cacheContext.DownstreamRequest.ToUri());
+
                 await next();
                 await CacheDownstreamResponse(context, policy, cacheContext);
                 return;
@@ -86,6 +98,8 @@ internal class ETagCachingMiddleware(
         if (cacheContext.AllowCacheResponseETag)
         {
             var cacheEntry = new ETagCacheEntry(cacheContext.ETag, cacheContext.CacheEntryExtraProps);
+
+            LogSettingToCacheStore(cacheContext);
 
             await _cacheStore.SetAsync(
                 cacheContext.CacheKey,
@@ -123,4 +137,22 @@ internal class ETagCachingMiddleware(
         var response = new DownstreamResponse(stringContent, cacheContext.StatusCode, headers, string.Empty);
         context.Items.UpsertDownstreamResponse(response);
     }
+
+    [LoggerMessage("ETagCachingMiddleware start for the request: '{requestPath}'", Level = LogLevel.Debug)]
+    partial void LogMiddlewareStart(string requestPath);
+
+    [LoggerMessage("Invoking caching.", Level = LogLevel.Debug)]
+    partial void LogInvokeCaching();
+
+    [LoggerMessage("{cacheContext}", Level = LogLevel.Information)]
+    partial void LogETagCacheContext(ETagCacheContext cacheContext);
+
+    [LoggerMessage("Serve not modified: {cacheContext}", Level = LogLevel.Information)]
+    partial void LogServeNotModified(ETagCacheContext cacheContext);
+
+    [LoggerMessage("Get resource from downstream service: {downstreamPath}", Level = LogLevel.Information)]
+    partial void LogGetResourceFromDownstream(string downstreamPath);
+
+    [LoggerMessage("Setting information to cache store: {cacheContext}.", Level = LogLevel.Information)]
+    partial void LogSettingToCacheStore(ETagCacheContext cacheContext);
 }
