@@ -37,7 +37,7 @@ public class ETagCachingMiddlewareShould
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             Options.Create(ETagCachingOptions.Create()
-                .AddPolicy("productsPolicy", builder => builder.AddPolicy(EnableCachePolicy.Disabled))),
+                .AddPolicy("productsPolicy", builder => builder.AddPolicy(DisableCachePolicy.Instance))),
             NullLogger<ETagCachingMiddleware>.Instance);
 
         var context = CreateHttpContext();
@@ -217,7 +217,7 @@ public class ETagCachingMiddlewareShould
             CreateRoutes([new("products", "productsPolicy")]),
             store,
             Options.Create(ETagCachingOptions.Create()
-                .AddPolicy("productsPolicy", builder => builder.AddPolicy(EnableCachePolicy.Disabled))),
+                .AddPolicy("productsPolicy", builder => builder.AddPolicy(DisableCachePolicy.Instance))),
             NullLogger<ETagCachingMiddleware>.Instance);
 
         var context = CreateHttpContext();
@@ -442,6 +442,27 @@ public class ETagCachingMiddlewareShould
             Func<TState, Exception?, string> formatter)
         {
             ExecuteCount++;
+        }
+    }
+
+    internal sealed class DisableCachePolicy : IETagCachePolicy
+    {
+        public static DisableCachePolicy Instance { get; } = new DisableCachePolicy();
+
+        public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
+        {
+            context.EnableETagCache = false;
+            return ValueTask.CompletedTask;
+        }
+
+        public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
+        {
+            return ValueTask.CompletedTask;
+        }
+
+        public ValueTask ServeDownstreamResponseAsync(ETagCacheContext context, CancellationToken cancellationToken)
+        {
+            return ValueTask.CompletedTask;
         }
     }
 }

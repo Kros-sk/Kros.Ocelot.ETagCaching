@@ -113,31 +113,6 @@ public sealed class ETagCachePolicyBuilder
         return this;
     }
 
-    /// <summary>
-    /// Clears the policies and adds one preventing any caching logic to happen.
-    /// </summary>
-    public ETagCachePolicyBuilder NoCache()
-    {
-        _policies.Clear();
-        AddPolicy(EnableCachePolicy.Disabled);
-
-        return this;
-    }
-
-    /// <summary>
-    /// Enables caching for the current request if not already enabled.
-    /// </summary>
-    /// <remarks>If no custom policy is added, the <see cref="DefaultPolicy"/> is already "enabled".</remarks>
-    public ETagCachePolicyBuilder Cache()
-    {
-        if (_policies.Count != 1 || _policies[0] != DefaultPolicy.Instance)
-        {
-            AddPolicy(EnableCachePolicy.Enabled);
-        }
-
-        return this;
-    }
-
     internal IETagCachePolicy Build()
         => _policies.Count switch
         {

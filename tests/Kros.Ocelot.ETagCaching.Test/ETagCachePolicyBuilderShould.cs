@@ -74,37 +74,6 @@ public class ETagCachePolicyBuilderShould
         context.CacheKey.Should().Be("custom");
     }
 
-    [Fact]
-    public async Task BuildNoCachePolicy()
-    {
-        var builder = new ETagCachePolicyBuilder(true);
-
-        builder.NoCache();
-
-        var policy = builder.Build();
-        var context = ETagCacheContextFactory.CreateContext();
-
-        await policy.CacheETagAsync(context, default);
-
-        context.EnableETagCache.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task BuildCachePolicy()
-    {
-        var builder = new ETagCachePolicyBuilder(true);
-
-        builder.NoCache();
-        builder.Cache();
-
-        var policy = builder.Build();
-        var context = ETagCacheContextFactory.CreateContext();
-
-        await policy.CacheETagAsync(context, default);
-
-        context.EnableETagCache.Should().BeTrue();
-    }
-
     private class CustomPolicy : IETagCachePolicy
     {
         public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
