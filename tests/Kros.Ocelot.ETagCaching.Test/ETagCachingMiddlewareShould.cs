@@ -1,6 +1,7 @@
 ﻿using Kros.Ocelot.ETagCaching.Policies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
@@ -303,6 +304,45 @@ public class ETagCachingMiddlewareShould
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotModified);
     }
 
+    [Fact]
+    public async Task LoginformationsWhenServeFromCache()
+    {
+        var logger = new FakeLogger();
+        var store = Store.Create();
+        var middleware = new ETagCachingMiddleware(
+            CreateRoutes([new("products", "productsPolicy")]),
+            store,
+            Options.Create(ETagCachingOptions.Create()
+                .AddPolicy("productsPolicy", b => b.ETag(_ => new("\"123\"")))),
+            logger);
+
+        var context = CreateHttpContext();
+        await middleware.InvokeAsync(context, () => Task.CompletedTask);
+
+        logger.ExecuteCount.Should().Be(5);
+    }
+
+    [Fact]
+    public async Task LoginformationsWhenServeNotModified()
+    {
+        var logger = new FakeLogger();
+        var cacheEntry = new ETagCacheEntry(new EntityTagHeaderValue("\"123\""), []);
+        var store = Store.Create(cacheEntry);
+        var middleware = new ETagCachingMiddleware(
+            CreateRoutes([new("products", "productsPolicy")]),
+            store,
+            Options.Create(ETagCachingOptions.Create()
+                .AddDefaultPolicy("productsPolicy")),
+            logger);
+
+        var context = CreateHttpContext();
+        context.Items.UpsertDownstreamRequest(CreateRequest([("If-None-Match", "\"123\"")]));
+
+        await middleware.InvokeAsync(context, () => Task.CompletedTask);
+
+        logger.ExecuteCount.Should().Be(4);
+    }
+
     private static DownstreamRequest CreateRequest(IEnumerable<(string header, string value)> headers)
     {
         var request = new DownstreamRequest(new HttpRequestMessage(HttpMethod.Get, "http://localhost"));
@@ -384,6 +424,24 @@ public class ETagCachingMiddlewareShould
         ValueTask<byte[]?> IOutputCacheStore.GetAsync(string key, CancellationToken cancellationToken)
         {
             return ValueTask.FromResult(_entry);
+        }
+    }
+
+    private class FakeLogger : ILogger<ETagCachingMiddleware>
+    {
+        public int ExecuteCount { get; private set; }
+
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => throw new NotImplementedException();
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+        {
+            ExecuteCount++;
         }
     }
 }

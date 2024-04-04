@@ -1,0 +1,11 @@
+﻿ETagCacheContext
+{
+	ETag: "default"
+	CacheKey: ""
+	EnableETagCache: False
+	AllowNotModified: False
+
+	ETagExpirationTimeSpan: "00:00:00"
+	Tags: []
+	StatusCode: 0
+}
