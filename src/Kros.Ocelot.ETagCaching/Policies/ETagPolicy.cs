@@ -9,7 +9,7 @@ internal sealed class ETagPolicy(Func<ETagCacheContext, EntityTagHeaderValue> et
     public ValueTask ServeDownstreamResponseAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
         context.ETag = _etagGenerator(context);
-        context.ResponseHeaders[HttpHeadersHelper.ETagHeaderName] = context.ETag.ToString();
+        context.ResponseHeaders[HeaderNames.ETag] = context.ETag.ToString();
         return ValueTask.CompletedTask;
     }
 
