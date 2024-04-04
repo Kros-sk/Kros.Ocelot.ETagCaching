@@ -32,7 +32,7 @@ internal sealed class DefaultPolicy : IETagCachePolicy
     public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
         context.StatusCode = System.Net.HttpStatusCode.NotModified;
-        AddCacheHeaders(context.CachedResponseHeaders,context.ETag.ToString());
+        AddCacheHeaders(context.CachedResponseHeaders, context.ETag.ToString());
 
         return ValueTask.CompletedTask;
     }
@@ -111,8 +111,7 @@ internal sealed class DefaultPolicy : IETagCachePolicy
         if (context.DownstreamRequest.Headers.TryGetValues(HttpHeadersHelper.IfNoneMatchHeaderName, out var values)
             && values.Count() == 1)
         {
-            entityTag = EntityTagHeaderValue.Parse(values.First());
-            return true;
+            return EntityTagHeaderValue.TryParse(values.First(), out entityTag);
         }
 
         return false;
