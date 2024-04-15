@@ -7,7 +7,7 @@
     <PackageVersion Include="Kros.AspNetCore" Version="4.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.3" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.4" />
     <PackageVersion Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
@@ -19,10 +19,10 @@
     <PackageVersion Include="PublicApiGenerator" Version="11.1.0" />
     <PackageVersion Include="Roslynator.Analyzers" Version="4.12.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageVersion Include="Verify" Version="23.5.2" />
-    <PackageVersion Include="Verify.Xunit" Version="23.5.2" />
-    <PackageVersion Include="WireMock.Net" Version="1.5.51" />
-    <PackageVersion Include="xunit" Version="2.7.0" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.7" />
+    <PackageVersion Include="Verify" Version="24.0.0" />
+    <PackageVersion Include="Verify.Xunit" Version="24.0.0" />
+    <PackageVersion Include="WireMock.Net" Version="1.5.52" />
+    <PackageVersion Include="xunit" Version="2.7.1" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.8" />
   </ItemGroup>
 </Project>
