@@ -43,7 +43,7 @@ public class DefaultWebApplicationFactory : WebApplicationFactory<IAssemblyMarke
     {
         var ret = new Dictionary<string, string?>();
 
-        for (var i = 0; i < 3; i++)
+        for (var i = 0; i < 5; i++)
         {
             ret[$"Routes:{i}:DownstreamHostAndPorts:0:Host"] = "localhost";
             ret[$"Routes:{i}:DownstreamHostAndPorts:0:Port"] = WireMockServer.Ports[0].ToString();
@@ -56,5 +56,11 @@ public class DefaultWebApplicationFactory : WebApplicationFactory<IAssemblyMarke
     {
         WireMockServer.Given(Request.Create().WithPath("/1/products").UsingGet())
             .RespondWith(Response.Create().WithBody("this is a body").WithStatusCode(200));
+
+        WireMockServer.Given(Request.Create().WithPath("/2/products").UsingGet())
+            .RespondWith(Response.Create().WithBody("this is a body").WithStatusCode(200));
+
+        WireMockServer.Given(Request.Create().WithPath("/2/products").UsingPost())
+            .RespondWith(Response.Create().WithBody("this is a body").WithStatusCode(201));
     }
 }
