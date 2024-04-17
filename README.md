@@ -98,9 +98,41 @@ Tag is created by replacing placeholders with values from request route paramete
 
 For example, for route `/api/{tenantId}/products/{id}` and tag template `product:{tenantId}:{id}` the tag will be `product:1:2`.
 
-> Cache invalidation will be added in the next pull request.
+## Cache invalidation
+
+You can invalidate cache entries by tags defined in tag templates.
+
+### Automatic by endpoints
+
+```json
+{
+    "Key": "deleteProduct",
+    "UpstreamHttpMethod": [ "Delete" ],
+    "DownstreamPathTemplate": "/api/producsts/{id}",
+    "UpstreamPathTemplate": "/products/{id}",
+    "InvalidateCache": ["product:{tenantId}", "product:{tenantId}:{id}"], // 👈 Invalidate cache by tags
+}
+```
+
+### Manual
 
 ```csharp
+public class ProductsService {
+    private readonly IOutputCacheStore _outputCacheStore;
+
+    public ProductsService(IOutputCacheStore outputCacheStore)
+    {
+        _outputCacheStore = outputCacheStore;
+    }
+
+    public async Task DeleteProduct(int tenantId, int id)
+    {
+        // 👇 Invalidate cache by tags
+        await _outputCacheStore.InvalidateAsync($"product:{tenantId}", $"product:{tenantId}:{id}");
+        // ...
+    }
+}
+```
 
 ## Redis
 
