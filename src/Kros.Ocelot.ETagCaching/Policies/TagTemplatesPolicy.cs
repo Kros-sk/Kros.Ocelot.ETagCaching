@@ -8,17 +8,7 @@ internal sealed class TagTemplatesPolicy(string[] tagTemplates) : IETagCachePoli
 
     public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
-        var tagSb = new StringBuilder();
-        foreach (var tagTemplate in _tagTemplates)
-        {
-            tagSb.Append(tagTemplate);
-            foreach (var template in context.TemplatePlaceholderNameAndValues)
-            {
-                tagSb.Replace(template.Name, template.Value);
-            }
-            context.Tags.Add(tagSb.ToString());
-            tagSb.Length = 0;
-        }
+        context.Tags.UnionWith(TagsHelper.GetTags(_tagTemplates, context.TemplatePlaceholderNameAndValues));
 
         return ValueTask.CompletedTask;
     }

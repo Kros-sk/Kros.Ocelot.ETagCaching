@@ -20,22 +20,40 @@ internal partial class ETagCachingMiddleware(
     private readonly IOptions<ETagCachingOptions> _cachingOptions = cachingOptions;
     private readonly ILogger<ETagCachingMiddleware> _logger = logger;
 
-    public Task InvokeAsync(HttpContext context, Func<Task> next)
+    public async Task InvokeAsync(HttpContext context, Func<Task> next)
     {
         LogMiddlewareStart(context.Request.GetDisplayUrl());
-        if (TryGetPolicy(context, out var policy))
+
+        if (TryGetTagsForInvalidation(context, out var tags))
         {
-            return InvokeCaching(context, policy, next);
+            await InvalidateCache(tags, context.RequestAborted);
         }
 
-        return next();
+        if (TryGetPolicy(context, out var policy))
+        {
+            await InvokeCaching(context, policy, next);
+            return;
+        }
+
+        await next();
+    }
+
+    private async Task InvalidateCache(string[] tags, CancellationToken cancellationToken)
+    {
+        foreach (var tag in tags)
+        {
+            LogCacheEviction(tag);
+            await _cacheStore.EvictByTagAsync(tag, cancellationToken);
+        }
     }
 
     private bool TryGetPolicy(HttpContext context, [NotNullWhen(true)] out IETagCachePolicy? policy)
     {
         var downstreamRoute = context.Items.DownstreamRoute();
 
-        if (!string.IsNullOrWhiteSpace(downstreamRoute.Key) && _routeOptions.TryGetValue(downstreamRoute.Key, out var route))
+        if (!string.IsNullOrWhiteSpace(downstreamRoute.Key)
+            && _routeOptions.TryGetValue(downstreamRoute.Key, out var route)
+            && !string.IsNullOrEmpty(route.CachePolicy))
         {
             policy = _cachingOptions.Value.GetPolicy(route.CachePolicy);
             return true;
@@ -138,6 +156,23 @@ internal partial class ETagCachingMiddleware(
         context.Items.UpsertDownstreamResponse(response);
     }
 
+    private bool TryGetTagsForInvalidation(HttpContext context, out string[] tags)
+    {
+        var downstreamRoute = context.Items.DownstreamRoute();
+        tags = [];
+
+        if (!string.IsNullOrWhiteSpace(downstreamRoute.Key)
+            && _routeOptions.TryGetValue(downstreamRoute.Key, out var route)
+            && route.InvalidateCache is not null)
+        {
+            tags = [.. TagsHelper.GetTags([.. route.InvalidateCache], context.Items.TemplatePlaceholderNameAndValues())];
+
+            return tags.Length > 0;
+        }
+
+        return false;
+    }
+
     [LoggerMessage("ETagCachingMiddleware start for the request: '{requestPath}'", Level = LogLevel.Debug)]
     partial void LogMiddlewareStart(string requestPath);
 
@@ -155,4 +190,7 @@ internal partial class ETagCachingMiddleware(
 
     [LoggerMessage("Setting information to cache store: {cacheContext}.", Level = LogLevel.Information)]
     partial void LogSettingToCacheStore(ETagCacheContext cacheContext);
+
+    [LoggerMessage("Cache eviction for tag: {tag}", Level = LogLevel.Information)]
+    partial void LogCacheEviction(string tag);
 }

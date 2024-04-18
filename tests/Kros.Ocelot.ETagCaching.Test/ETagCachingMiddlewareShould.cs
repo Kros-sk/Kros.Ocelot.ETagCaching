@@ -343,6 +343,24 @@ public class ETagCachingMiddlewareShould
         logger.ExecuteCount.Should().Be(4);
     }
 
+    [Fact]
+    public async Task InvalidateCacheIfIsConfigured()
+    {
+        var store = Store.Create();
+        var middleware = new ETagCachingMiddleware(
+            CreateRoutes([new("products", "productsPolicy", ["tenant:{tenantId}:product:{id}", "tenant:{tenantId}"])]),
+            store,
+            Options.Create(ETagCachingOptions.Create()
+                .AddPolicy("productsPolicy", (_) => { })),
+            NullLogger<ETagCachingMiddleware>.Instance);
+
+        var context = CreateHttpContext();
+        context.Items.UpsertTemplatePlaceholderNameAndValues([new("{tenantId}", "2"), new ("{id}", "3")]);
+        await middleware.InvokeAsync(context, () => Task.CompletedTask);
+
+        store.EvictedTags.Should().Be("tenant:2:product:3;tenant:2;");
+    }
+
     private static DownstreamRequest CreateRequest(IEnumerable<(string header, string value)> headers)
     {
         var request = new DownstreamRequest(new HttpRequestMessage(HttpMethod.Get, "http://localhost"));
@@ -397,6 +415,8 @@ public class ETagCachingMiddlewareShould
 
         public bool WasCallSetAsync { get; private set; }
 
+        public string EvictedTags { get; private set; } = string.Empty;
+
         public static Store Create(ETagCacheEntry? entry = null)
             => new(entry);
 
@@ -406,7 +426,10 @@ public class ETagCachingMiddlewareShould
         }
 
         public ValueTask EvictByTagAsync(string tag, CancellationToken cancellationToken)
-            => throw new NotImplementedException();
+        {
+            EvictedTags += $"{tag};";
+            return ValueTask.CompletedTask;
+        }
 
         public ValueTask SetAsync(
             string key,

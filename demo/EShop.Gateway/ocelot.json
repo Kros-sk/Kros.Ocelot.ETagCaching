@@ -4,7 +4,7 @@
             "Key": "getProducts",
             "DownstreamPathTemplate": "/{tenantId}/products/",
             "UpstreamPathTemplate": "/{tenantId}/products/",
-            "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
+            "UpstreamHttpMethod": [ "Get" ],
             "DownstreamHostAndPorts": [
                 {
                     "Host": "eshop.products",
@@ -18,7 +18,7 @@
             "Key": "getProduct",
             "DownstreamPathTemplate": "/{tenantId}/products/{id}",
             "UpstreamPathTemplate": "/{tenantId}/products/{id}",
-            "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
+            "UpstreamHttpMethod": [ "Get" ],
             "DownstreamHostAndPorts": [
                 {
                     "Host": "eshop.products",
@@ -31,7 +31,7 @@
         {
             "DownstreamPathTemplate": "/{tenantId}/products/{everything}",
             "UpstreamPathTemplate": "/withoutcache/{tenantId}/products/{everything}",
-            "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
+            "UpstreamHttpMethod": [ "Get" ],
             "DownstreamHostAndPorts": [
                 {
                     "Host": "eshop.products",
@@ -39,6 +39,34 @@
                 }
             ],
             "SwaggerKey": "products"
+        },
+        {
+            "Key": "createProduct",
+            "DownstreamPathTemplate": "/{tenantId}/products/",
+            "UpstreamPathTemplate": "/{tenantId}/products/",
+            "UpstreamHttpMethod": [ "Post" ],
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "eshop.products",
+                    "Port": 5200
+                }
+            ],
+            "SwaggerKey": "products",
+            "InvalidateCache": [ "product:{tenantId}" ]
+        },
+        {
+            "Key": "updateProduct",
+            "DownstreamPathTemplate": "/{tenantId}/products/{id}",
+            "UpstreamPathTemplate": "/{tenantId}/products/{id}",
+            "UpstreamHttpMethod": [ "Put" ],
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "eshop.products",
+                    "Port": 5200
+                }
+            ],
+            "SwaggerKey": "products",
+            "InvalidateCache": [ "product:{tenantId}", "product:{tenantId}:{id}" ]
         }
     ],
 
