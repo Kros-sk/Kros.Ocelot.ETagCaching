@@ -358,7 +358,7 @@ public class ETagCachingMiddlewareShould
         context.Items.UpsertTemplatePlaceholderNameAndValues([new("{tenantId}", "2"), new ("{id}", "3")]);
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
 
-        store.EvicedTags.Should().Be("tenant:2:product:3;tenant:2;");
+        store.EvictedTags.Should().Be("tenant:2:product:3;tenant:2;");
     }
 
     private static DownstreamRequest CreateRequest(IEnumerable<(string header, string value)> headers)
@@ -415,7 +415,7 @@ public class ETagCachingMiddlewareShould
 
         public bool WasCallSetAsync { get; private set; }
 
-        public string EvicedTags { get; private set; } = string.Empty;
+        public string EvictedTags { get; private set; } = string.Empty;
 
         public static Store Create(ETagCacheEntry? entry = null)
             => new(entry);
@@ -427,7 +427,7 @@ public class ETagCachingMiddlewareShould
 
         public ValueTask EvictByTagAsync(string tag, CancellationToken cancellationToken)
         {
-            EvicedTags += $"{tag};";
+            EvictedTags += $"{tag};";
             return ValueTask.CompletedTask;
         }
 

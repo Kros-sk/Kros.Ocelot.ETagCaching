@@ -42,6 +42,7 @@ internal partial class ETagCachingMiddleware(
     {
         foreach (var tag in tags)
         {
+            LogCacheEviction(tag);
             await _cacheStore.EvictByTagAsync(tag, cancellationToken);
         }
     }
@@ -189,4 +190,7 @@ internal partial class ETagCachingMiddleware(
 
     [LoggerMessage("Setting information to cache store: {cacheContext}.", Level = LogLevel.Information)]
     partial void LogSettingToCacheStore(ETagCacheContext cacheContext);
+
+    [LoggerMessage("Cache eviction for tag: {tag}", Level = LogLevel.Information)]
+    partial void LogCacheEviction(string tag);
 }
