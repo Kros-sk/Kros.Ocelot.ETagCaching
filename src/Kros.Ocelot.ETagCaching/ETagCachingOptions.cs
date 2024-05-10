@@ -8,6 +8,7 @@ namespace Kros.Ocelot.ETagCaching;
 public sealed class ETagCachingOptions
 {
     private readonly Dictionary<string, IETagCachePolicy> _policies = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, IInvalidateCachePolicy> _invalidatePolicies = new(StringComparer.OrdinalIgnoreCase);
 
     internal static ETagCachingOptions Create()
         => new();
@@ -48,6 +49,31 @@ public sealed class ETagCachingOptions
         => AddPolicy(policyName, _ => { });
 
     /// <summary>
+    /// Adds a policy to invalidate cache.
+    /// </summary>
+    /// <param name="policyName">Policy name.</param>
+    /// <param name="builder">Policy builder</param>
+    /// <exception cref="ArgumentException">If policy with the same name already exists.</exception>
+    public ETagCachingOptions AddInvalidatePolicy(
+        string policyName,
+        Action<InvalidateCachePolicyBuilder> builder)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(policyName, nameof(policyName));
+
+        if (_invalidatePolicies.ContainsKey(policyName))
+        {
+            throw new ArgumentException($"Policy with name '{policyName}' already exists.", policyName);
+        }
+
+        var policyBuilder = new InvalidateCachePolicyBuilder();
+        builder(policyBuilder);
+
+        _invalidatePolicies.Add(policyName, policyBuilder.Build());
+
+        return this;
+    }
+
+    /// <summary>
     /// Get policy.
     /// </summary>
     /// <param name="policyName">Policy name.</param>
@@ -55,4 +81,13 @@ public sealed class ETagCachingOptions
         => _policies.TryGetValue(policyName, out var policy)
         ? policy
         : EmptyPolicy.Instance;
+
+    /// <summary>
+    /// Get invalidate policy.
+    /// </summary>
+    /// <param name="policyName">Policy name.</param>
+    public IInvalidateCachePolicy GetInvalidatePolicy(string policyName)
+        => _invalidatePolicies.TryGetValue(policyName, out var policy)
+        ? policy
+        : InvalidateEmptyPolicy.Instance;
 }

@@ -77,4 +77,45 @@ public class ServiceCollectionExtensionsShould
             .Throw<ArgumentException>()
             .WithMessage("Policy with name 'getAllProduct' already exists. (Parameter 'getAllProduct')");
     }
+
+    [Fact]
+    public async Task AddInvalidatePolicy()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
+        services.AddOcelotETagCaching(conf =>
+        {
+            conf.AddInvalidatePolicy("invalidateProduct", builder
+                => builder.TagTemplates("product:{tenantId}", "product:{tenantId}:{id}"));
+        });
+
+        var serviceProvider = services.BuildServiceProvider();
+        var options = serviceProvider.GetRequiredService<IOptions<ETagCachingOptions>>().Value;
+        var policy = options.GetInvalidatePolicy("invalidateProduct");
+
+        var context = InvalidateCacheContextFactory.CreateContext();
+        await policy.InvalidateCacheAsync(context, default);
+
+        context.Tags.Should().BeEquivalentTo(["product:1", "product:1:2"]);
+    }
+
+    [Fact]
+    public void ThrowExceptionWhenInvalidatePolicyWithTheSameNameIsAdded()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
+        Action? act = null;
+
+        services.AddOcelotETagCaching(conf =>
+        {
+            conf.AddInvalidatePolicy("invalidateProduct", _ => { });
+            act = () => conf.AddInvalidatePolicy("invalidateProduct", _ => { });
+        });
+
+        var serviceProvider = services.BuildServiceProvider();
+        var options = serviceProvider.GetRequiredService<IOptions<ETagCachingOptions>>().Value;
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithMessage("Policy with name 'invalidateProduct' already exists. (Parameter 'invalidateProduct')");
+    }
 }
