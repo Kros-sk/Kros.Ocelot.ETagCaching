@@ -29,8 +29,20 @@
             "CachePolicy": "getProduct"
         },
         {
-            "DownstreamPathTemplate": "/{tenantId}/products/{everything}",
-            "UpstreamPathTemplate": "/withoutcache/{tenantId}/products/{everything}",
+            "DownstreamPathTemplate": "/{tenantId}/products/{id}",
+            "UpstreamPathTemplate": "/withoutcache/{tenantId}/products/{id}",
+            "UpstreamHttpMethod": [ "Get" ],
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "eshop.products",
+                    "Port": 5200
+                }
+            ],
+            "SwaggerKey": "products"
+        },
+        {
+            "DownstreamPathTemplate": "/{tenantId}/products/",
+            "UpstreamPathTemplate": "/withoutcache/{tenantId}/products/",
             "UpstreamHttpMethod": [ "Get" ],
             "DownstreamHostAndPorts": [
                 {

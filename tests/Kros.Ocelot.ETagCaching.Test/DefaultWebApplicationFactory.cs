@@ -54,13 +54,13 @@ public class DefaultWebApplicationFactory : WebApplicationFactory<IAssemblyMarke
 
     private void ConfigureWireMockServer()
     {
-        WireMockServer.Given(Request.Create().WithPath("/1/products").UsingGet())
+        WireMockServer.Given(Request.Create().WithPath("/1/products/").UsingGet())
             .RespondWith(Response.Create().WithBody("this is a body").WithStatusCode(200));
 
-        WireMockServer.Given(Request.Create().WithPath("/2/products").UsingGet())
+        WireMockServer.Given(Request.Create().WithPath("/2/products/").UsingGet())
             .RespondWith(Response.Create().WithBody("this is a body").WithStatusCode(200));
 
-        WireMockServer.Given(Request.Create().WithPath("/2/products").UsingPost())
+        WireMockServer.Given(Request.Create().WithPath("/2/products/").UsingPost())
             .RespondWith(Response.Create().WithBody("this is a body").WithStatusCode(201));
     }
 }
