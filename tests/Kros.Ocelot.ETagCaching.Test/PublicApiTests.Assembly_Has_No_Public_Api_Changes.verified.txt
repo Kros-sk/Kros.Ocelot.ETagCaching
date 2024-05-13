@@ -100,6 +100,6 @@ namespace Kros.Ocelot.ETagCaching
     }
     public static class OcelotPipelineConfigurationExtension
     {
-        public static void AddETagCaching(this Ocelot.Middleware.OcelotPipelineConfiguration pipelineConfiguration) { }
+        public static void AddETagCaching(this Ocelot.Middleware.OcelotPipelineConfiguration pipelineConfiguration, System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Func<System.Threading.Tasks.Task>, System.Threading.Tasks.Task>? preview = null) { }
     }
 }
