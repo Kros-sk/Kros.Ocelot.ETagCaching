@@ -130,7 +130,7 @@ builder.Services.AddOcelotETagCaching(conf =>
     //...
 
     // 👇 Add invalidate cache policy
-    conf.AddInvalidatePolicy("invalidateProductPolicy", builder =>
+    conf.AddInvalidatePolicy("invalidateProductCachePolicy", builder =>
     {
         builder.TagTemplates("product:{tenantId}", "product:{tenantId}:{id}");
     });
