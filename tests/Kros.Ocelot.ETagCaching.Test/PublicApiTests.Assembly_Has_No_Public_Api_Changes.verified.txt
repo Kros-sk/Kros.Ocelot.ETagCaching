@@ -52,7 +52,9 @@ namespace Kros.Ocelot.ETagCaching
     {
         public ETagCachingOptions() { }
         public Kros.Ocelot.ETagCaching.ETagCachingOptions AddDefaultPolicy(string policyName) { }
+        public Kros.Ocelot.ETagCaching.ETagCachingOptions AddInvalidatePolicy(string policyName, System.Action<Kros.Ocelot.ETagCaching.InvalidateCachePolicyBuilder> builder) { }
         public Kros.Ocelot.ETagCaching.ETagCachingOptions AddPolicy(string policyName, System.Action<Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder> builder, bool excludeDefaultPolicy = false) { }
+        public Kros.Ocelot.ETagCaching.IInvalidateCachePolicy GetInvalidatePolicy(string policyName) { }
         public Kros.Ocelot.ETagCaching.IETagCachePolicy GetPolicy(string policyName) { }
     }
     public interface IETagCachePolicy
@@ -65,8 +67,39 @@ namespace Kros.Ocelot.ETagCaching
     {
         System.Threading.Tasks.Task InvokeAsync(Microsoft.AspNetCore.Http.HttpContext context, System.Func<System.Threading.Tasks.Task> next);
     }
+    public interface IInvalidateCachePolicy
+    {
+        System.Threading.Tasks.ValueTask InvalidateCacheAsync(Kros.Ocelot.ETagCaching.InvalidateCacheContext context, System.Threading.CancellationToken cancellationToken);
+    }
+    [System.Runtime.CompilerServices.RequiredMember]
+    public sealed class InvalidateCacheContext
+    {
+        [System.Obsolete("Constructors of types with required members are not supported in this version of " +
+            "your compiler.", true)]
+        [System.Runtime.CompilerServices.CompilerFeatureRequired("RequiredMembers")]
+        public InvalidateCacheContext() { }
+        public bool AllowCacheInvalidation { get; set; }
+        public System.Collections.Generic.HashSet<string> Tags { get; }
+        [System.Runtime.CompilerServices.RequiredMember]
+        public Ocelot.Request.Middleware.DownstreamRequest DownstreamRequest { get; init; }
+        [System.Runtime.CompilerServices.RequiredMember]
+        public Microsoft.AspNetCore.Http.Features.IFeatureCollection RequestFeatures { get; init; }
+        [System.Runtime.CompilerServices.RequiredMember]
+        public System.IServiceProvider RequestServices { get; init; }
+        [System.Runtime.CompilerServices.RequiredMember]
+        public System.Collections.Generic.List<Ocelot.DownstreamRouteFinder.UrlMatcher.PlaceholderNameAndValue> TemplatePlaceholderNameAndValues { get; init; }
+    }
+    public sealed class InvalidateCachePolicyBuilder
+    {
+        public InvalidateCachePolicyBuilder() { }
+        public Kros.Ocelot.ETagCaching.InvalidateCachePolicyBuilder AddPolicy(Kros.Ocelot.ETagCaching.IInvalidateCachePolicy policy) { }
+        public Kros.Ocelot.ETagCaching.InvalidateCachePolicyBuilder AddPolicy<TPolicy>()
+            where TPolicy : Kros.Ocelot.ETagCaching.IInvalidateCachePolicy, new () { }
+        public Kros.Ocelot.ETagCaching.IInvalidateCachePolicy Build() { }
+        public Kros.Ocelot.ETagCaching.InvalidateCachePolicyBuilder TagTemplates(params string[] tagTemplates) { }
+    }
     public static class OcelotPipelineConfigurationExtension
     {
-        public static void AddETagCaching(this Ocelot.Middleware.OcelotPipelineConfiguration pipelineConfiguration) { }
+        public static void AddETagCaching(this Ocelot.Middleware.OcelotPipelineConfiguration pipelineConfiguration, System.Func<Microsoft.AspNetCore.Http.HttpContext, System.Func<System.Threading.Tasks.Task>, System.Threading.Tasks.Task>? preview = null) { }
     }
 }

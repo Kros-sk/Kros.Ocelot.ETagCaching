@@ -53,7 +53,7 @@ We use `IOutputCacheStore` to store ETags and invalidate them.
             "Key": "deleteProduct",
             "DownstreamPathTemplate": "/api/producsts/{id}",
             "UpstreamPathTemplate": "/products/{id}",
-            "InvalidateCachePolicies": ["getProduct", "getAllProducts"],
+            "InvalidateCachePolicy": "invalidateProductCachePolicy"
             ...
         }
     ]
@@ -118,8 +118,23 @@ You can invalidate cache entries by tags defined in tag templates.
     "UpstreamHttpMethod": [ "Delete" ],
     "DownstreamPathTemplate": "/api/producsts/{id}",
     "UpstreamPathTemplate": "/products/{id}",
-    "InvalidateCache": ["product:{tenantId}", "product:{tenantId}:{id}"], // 👈 Invalidate cache by tags
+    "InvalidateCachePolicy": "invalidateProductCachePolicy", // 👈 Invalidate cache policy
 }
+```
+
+```csharp
+builder.Services.AddOcelotETagCaching(conf =>
+{
+    //...
+    // define cache policy
+    //...
+
+    // 👇 Add invalidate cache policy
+    conf.AddInvalidatePolicy("invalidateProductCachePolicy", builder =>
+    {
+        builder.TagTemplates("product:{tenantId}", "product:{tenantId}:{id}");
+    });
+});
 ```
 
 ### Manual

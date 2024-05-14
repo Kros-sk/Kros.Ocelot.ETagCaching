@@ -23,6 +23,11 @@ builder.Services.AddOcelotETagCaching(conf =>
         builder.Expire(TimeSpan.FromMinutes(10));
         builder.TagTemplates("product:{tenantId}", "product:{tenantId}:{id}", "all:{tenantId}");
     });
+
+    conf.AddInvalidatePolicy("invalidateProductPolicy", builder =>
+    {
+        builder.TagTemplates("product:{tenantId}", "product:{tenantId}:{id}");
+    });
 });
 
 var app = builder.Build();

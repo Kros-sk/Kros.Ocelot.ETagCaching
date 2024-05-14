@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Kros.Ocelot.ETagCaching.Policies;
+﻿namespace Kros.Ocelot.ETagCaching.Policies;
 
 internal sealed class TagTemplatesPolicy(string[] tagTemplates) : IETagCachePolicy
 {

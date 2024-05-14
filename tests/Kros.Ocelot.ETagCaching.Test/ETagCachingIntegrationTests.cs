@@ -23,7 +23,7 @@ public class ETagCachingIntegrationTests(DefaultWebApplicationFactory factory)
     {
         using var client = factory.CreateClient();
 
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/1/products");
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/1/products/");
         request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue("\"etag-value\""));
 
         using var response = await client.SendAsync(request);
@@ -46,7 +46,7 @@ public class ETagCachingIntegrationTests(DefaultWebApplicationFactory factory)
     {
         using var client = factory.CreateClient();
 
-        using var response = await client.GetAsync("withoutcache/1/products");
+        using var response = await client.GetAsync("withoutcache/1/products/");
 
         response.EnsureSuccessStatusCode();
         response.Headers.Contains("ETag").Should().BeFalse();
@@ -87,7 +87,7 @@ public class ETagCachingIntegrationTests(DefaultWebApplicationFactory factory)
     {
         using var client = factory.CreateClient();
 
-        using var response = await client.GetAsync("/2/products");
+        using var response = await client.GetAsync("/2/products/");
 
         response.EnsureSuccessStatusCode();
         var etag = response.Headers.ETag!.Tag;
@@ -99,7 +99,7 @@ public class ETagCachingIntegrationTests(DefaultWebApplicationFactory factory)
             Category = "Category",
             Price = 10
         };
-        var createResponse = await client.PostAsJsonAsync("/2/products", product);
+        var createResponse = await client.PostAsJsonAsync("/2/products/", product);
 
         createResponse.EnsureSuccessStatusCode();
 

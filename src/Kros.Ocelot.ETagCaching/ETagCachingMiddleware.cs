@@ -24,9 +24,9 @@ internal partial class ETagCachingMiddleware(
     {
         LogMiddlewareStart(context.Request.GetDisplayUrl());
 
-        if (TryGetTagsForInvalidation(context, out var tags))
+        if (TryGetTagsForInvalidation(context, out var invalidatePolicy))
         {
-            await InvalidateCache(tags, context.RequestAborted);
+            await InvalidateCache(context, invalidatePolicy);
         }
 
         if (TryGetPolicy(context, out var policy))
@@ -38,12 +38,27 @@ internal partial class ETagCachingMiddleware(
         await next();
     }
 
-    private async Task InvalidateCache(string[] tags, CancellationToken cancellationToken)
+    private async Task InvalidateCache(
+        HttpContext context,
+        IInvalidateCachePolicy invalidatePolicy)
     {
-        foreach (var tag in tags)
+        var invalidateContext = new InvalidateCacheContext()
         {
-            LogCacheEviction(tag);
-            await _cacheStore.EvictByTagAsync(tag, cancellationToken);
+            DownstreamRequest = context.Items.DownstreamRequest(),
+            RequestFeatures = context.Features,
+            RequestServices = context.RequestServices,
+            TemplatePlaceholderNameAndValues = context.Items.TemplatePlaceholderNameAndValues()
+        };
+
+        await invalidatePolicy.InvalidateCacheAsync(invalidateContext, context.RequestAborted);
+
+        if (invalidateContext.AllowCacheInvalidation)
+        {
+            foreach (var tag in invalidateContext.Tags)
+            {
+                LogCacheEviction(tag);
+                await _cacheStore.EvictByTagAsync(tag, context.RequestAborted);
+            }
         }
     }
 
@@ -156,20 +171,19 @@ internal partial class ETagCachingMiddleware(
         context.Items.UpsertDownstreamResponse(response);
     }
 
-    private bool TryGetTagsForInvalidation(HttpContext context, out string[] tags)
+    private bool TryGetTagsForInvalidation(HttpContext context, [NotNullWhen(true)] out IInvalidateCachePolicy? policy)
     {
         var downstreamRoute = context.Items.DownstreamRoute();
-        tags = [];
 
         if (!string.IsNullOrWhiteSpace(downstreamRoute.Key)
             && _routeOptions.TryGetValue(downstreamRoute.Key, out var route)
-            && route.InvalidateCache is not null)
+            && !string.IsNullOrEmpty(route.InvalidateCachePolicy))
         {
-            tags = [.. TagsHelper.GetTags([.. route.InvalidateCache], context.Items.TemplatePlaceholderNameAndValues())];
-
-            return tags.Length > 0;
+            policy = _cachingOptions.Value.GetInvalidatePolicy(route.InvalidateCachePolicy);
+            return true;
         }
 
+        policy = null;
         return false;
     }
 

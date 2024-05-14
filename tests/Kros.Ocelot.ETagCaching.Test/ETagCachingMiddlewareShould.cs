@@ -1,5 +1,4 @@
-﻿using Kros.Ocelot.ETagCaching.Policies;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -348,14 +347,16 @@ public class ETagCachingMiddlewareShould
     {
         var store = Store.Create();
         var middleware = new ETagCachingMiddleware(
-            CreateRoutes([new("products", "productsPolicy", ["tenant:{tenantId}:product:{id}", "tenant:{tenantId}"])]),
+            CreateRoutes([new("products", "productsPolicy", "invalidateProductsPolicy")]),
             store,
             Options.Create(ETagCachingOptions.Create()
-                .AddPolicy("productsPolicy", (_) => { })),
+                .AddPolicy("productsPolicy", (_) => { })
+                .AddInvalidatePolicy("invalidateProductsPolicy", (b)
+                    => b.TagTemplates("tenant:{tenantId}:product:{id}", "tenant:{tenantId}"))),
             NullLogger<ETagCachingMiddleware>.Instance);
 
-        var context = CreateHttpContext();
-        context.Items.UpsertTemplatePlaceholderNameAndValues([new("{tenantId}", "2"), new ("{id}", "3")]);
+        var context = CreateHttpContext(HttpMethod.Post);
+        context.Items.UpsertTemplatePlaceholderNameAndValues([new("{tenantId}", "2"), new("{id}", "3")]);
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
 
         store.EvictedTags.Should().Be("tenant:2:product:3;tenant:2;");
@@ -373,6 +374,9 @@ public class ETagCachingMiddlewareShould
     }
 
     private static DefaultHttpContext CreateHttpContext()
+        => CreateHttpContext(HttpMethod.Get);
+
+    private static DefaultHttpContext CreateHttpContext(HttpMethod httpMethod)
     {
         var context = new DefaultHttpContext();
 
@@ -382,7 +386,7 @@ public class ETagCachingMiddlewareShould
             new List<Header>(),
             string.Empty);
         context.Items.UpsertDownstreamResponse(response);
-        context.Items.UpsertDownstreamRequest(new DownstreamRequest(new HttpRequestMessage(HttpMethod.Get, "http://localhost")));
+        context.Items.UpsertDownstreamRequest(new DownstreamRequest(new HttpRequestMessage(httpMethod, "http://localhost")));
         context.Items.UpsertDownstreamRoute(new DownstreamRoute("products", null, null, null, [],
             null, null, null, false, false, null, null, null,
             false, null, null, null, [], [], [], [], [], false,

@@ -1,7 +1,7 @@
 <Project>
   <ItemGroup>
     <!-- Please keep this file organized alphabetically. -->
-    <PackageVersion Include="Ocelot" Version="23.2.2" />
+    <PackageVersion Include="Ocelot" Version="22.0.1" />
     <PackageVersion Include="Roslynator.Analyzers" Version="4.12.0" />
     <!-- Please keep this file organized alphabetically. -->
   </ItemGroup>
