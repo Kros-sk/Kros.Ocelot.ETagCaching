@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 using Ocelot.Middleware;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Headers;
 
 namespace Kros.Ocelot.ETagCaching;
 
@@ -118,9 +120,28 @@ internal partial class ETagCachingMiddleware(
                 return;
             }
         }
+        else
+        {
+            LogETagCachingDisabled(
+                context.Request.GetDisplayUrl(),
+                cacheContext.ETag?.ToString(),
+                context.Request?.Headers.CacheControl,
+                GetHeader(cacheContext.DownstreamRequest.Headers, HeaderNames.CacheControl),
+                GetHeader(cacheContext.DownstreamRequest.Headers, HeaderNames.IfNoneMatch));
+        }
 
         await next();
         return;
+    }
+
+    private static string? GetHeader(HttpHeaders header, string headerName)
+    {
+        if (header.TryGetValues(headerName, out var values))
+        {
+            return string.Join(", ", values);
+        }
+
+        return string.Empty;
     }
 
     private async Task CacheDownstreamResponse(HttpContext context, IETagCachePolicy policy, ETagCacheContext cacheContext)
@@ -207,4 +228,14 @@ internal partial class ETagCachingMiddleware(
 
     [LoggerMessage("Cache eviction for tag: {tag}", Level = LogLevel.Information)]
     partial void LogCacheEviction(string tag);
+
+    [LoggerMessage("ETag caching is disabled for request: '{requestPath}'. ETag: {eTag}, " +
+        "Upstream Cache-control: {upstreamCacheControl}, Downstream Cache-control: {downstreamCacheControl}, " +
+        "If-None-Match: {ifNoneMatch}", Level = LogLevel.Information)]
+    partial void LogETagCachingDisabled(
+        string? requestPath,
+        string? eTag,
+        string? upstreamCacheControl,
+        string? downstreamCacheControl,
+        string? ifNoneMatch);
 }
