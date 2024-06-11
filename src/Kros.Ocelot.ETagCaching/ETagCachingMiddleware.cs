@@ -231,7 +231,7 @@ internal partial class ETagCachingMiddleware(
 
     [LoggerMessage("ETag caching is disabled for request: '{requestPath}'. ETag: {eTag}, " +
         "Upstream Cache-control: {upstreamCacheControl}, Downstream Cache-control: {downstreamCacheControl}, " +
-        "If-None-Match: {ifNoneMatch}", Level = LogLevel.Debug)]
+        "If-None-Match: {ifNoneMatch}", Level = LogLevel.Information)]
     partial void LogETagCachingDisabled(
         string? requestPath,
         string? eTag,
