@@ -20,6 +20,9 @@ based on this value. If they are up to date it returns a status of `304 Not Modi
 
 On the client, this works automatically because this behavior is defined in the HTTP specification (no need to do anything).
 
+![image](https://github.com/user-attachments/assets/b618616c-8f5c-48de-b169-22f32286be55)
+
+
 ## Implementation
 
 The implementation is based on Ocelot middleware. All caching will be done in this middleware and nothing
