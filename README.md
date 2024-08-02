@@ -20,8 +20,24 @@ based on this value. If they are up to date it returns a status of `304 Not Modi
 
 On the client, this works automatically because this behavior is defined in the HTTP specification (no need to do anything).
 
-![image](https://github.com/user-attachments/assets/b618616c-8f5c-48de-b169-22f32286be55)
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant Server
 
+    Browser->>Server: Request
+    Server-->>Browser: Response with ETag and Cache-Control headers
+    note right of Server: Caches ETag with request info
+
+    Browser->>Server: Request with ETag header
+    alt ETag unchanged
+        Server-->>Browser: 304 Not Modified
+    else ETag changed
+        Server-->>Browser: Response with new ETag and data
+        note right of Server: Generates new ETag
+    end
+
+```
 
 ## Implementation
 
