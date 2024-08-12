@@ -58,7 +58,7 @@ We use `IOutputCacheStore` to store ETags and invalidate them.
             "Key": "getAllProducts",
             "DownstreamPathTemplate": "/api/producsts/",
             "UpstreamPathTemplate": "/products/",
-            "CachePolicy": "getAllProduct",
+            "CachePolicy": "getAllProducts",
             ...
         },
         {
@@ -120,7 +120,7 @@ app.Run();
 
 ## Tag templates
 
-Tag tamplates are use to create tag for cache entry. It is used to invalidate cache entries.
+Tag templates are used to create tag for cache entry. It is used to invalidate cache entries.
 Tag is created by replacing placeholders with values from request route parameters.
 
 For example, for route `/api/{tenantId}/products/{id}` and tag template `product:{tenantId}:{id}` the tag will be `product:1:2`.
