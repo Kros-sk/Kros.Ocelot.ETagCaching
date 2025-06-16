@@ -51,7 +51,6 @@ public class StatusCodePolicyShould
 
         context.Should().BeEquivalentTo(context2,
             o => o
-                .Excluding(p => p.ResponseHeaders)
                 .Excluding(p => p.HttpContext));
     }
 }
