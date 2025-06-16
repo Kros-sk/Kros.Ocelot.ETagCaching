@@ -1,4 +1,5 @@
 ﻿using Kros.Ocelot.ETagCaching.Policies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using Ocelot.Request.Middleware;
 
@@ -77,6 +78,25 @@ public sealed class ETagCachePolicyBuilder
     public ETagCachePolicyBuilder CacheKey(Func<DownstreamRequest, string> keyGenerator)
     {
         AddPolicy(new CacheKeyPolicy(keyGenerator));
+        return this;
+    }
+
+    /// <summary>
+    /// Add a policy to change the cache key based on upstream HTTP request (before Ocelot transformation).
+    /// </summary>
+    /// <param name="keyGenerator">Cache key generator.</param>
+    public ETagCachePolicyBuilder UpstreamCacheKey(Func<HttpRequest, string> keyGenerator)
+    {
+        AddPolicy(CacheKeyPolicy.FromUpstreamRequest(keyGenerator));
+        return this;
+    }
+
+    /// <summary>
+    /// Add a policy to change the cache key based on upstream HTTP request with default key generation.
+    /// </summary>
+    public ETagCachePolicyBuilder UpstreamCacheKey()
+    {
+        AddPolicy(CacheKeyPolicy.FromUpstreamRequest());
         return this;
     }
 

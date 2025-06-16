@@ -24,6 +24,8 @@ namespace Kros.Ocelot.ETagCaching
         [System.Runtime.CompilerServices.RequiredMember]
         public Ocelot.Request.Middleware.DownstreamRequest DownstreamRequest { get; init; }
         [System.Runtime.CompilerServices.RequiredMember]
+        public Microsoft.AspNetCore.Http.HttpContext HttpContext { get; init; }
+        [System.Runtime.CompilerServices.RequiredMember]
         public Microsoft.AspNetCore.Http.Features.IFeatureCollection RequestFeatures { get; init; }
         [System.Runtime.CompilerServices.RequiredMember]
         public System.IServiceProvider RequestServices { get; init; }
@@ -47,6 +49,8 @@ namespace Kros.Ocelot.ETagCaching
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder Expire(System.TimeSpan expiration) { }
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder StatusCode(int statusCode) { }
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder TagTemplates(params string[] tagTemplates) { }
+        public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder UpstreamCacheKey() { }
+        public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder UpstreamCacheKey(System.Func<Microsoft.AspNetCore.Http.HttpRequest, string> keyGenerator) { }
     }
     public sealed class ETagCachingOptions
     {
