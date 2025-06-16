@@ -104,6 +104,19 @@ builder.Services.AddOcelotETagCaching((c) =>
             p.StatusCode(222); // 👈 Custom status code
             p.AddPolicy<MyCustompolicy>(); // 👈 Custom policy
         });
+
+        // 👇 Policy with upstream cache key (based on original request before Ocelot transformation)
+        c.AddPolicy("getProductUpstream", p =>
+        {
+            p.Expire(TimeSpan.FromMinutes(10));
+            p.TagTemplates("product:{tenantId}:{id}");
+
+            // 👇 Use upstream request for cache key generation
+            p.UpstreamCacheKey(); // Uses default upstream key: method:scheme:host:path:query
+
+            // 👇 Or use custom upstream cache key generator
+            p.UpstreamCacheKey(request => $"custom:{request.Method}:{request.Path}");
+        });
     }
 );
 
@@ -116,6 +129,32 @@ app.UseOcelot(c =>
 }).Wait();
 
 app.Run();
+```
+
+## Cache Key Generation
+
+The library supports two types of cache key generation:
+
+### 1. Downstream Cache Key (Default)
+
+By default, cache keys are generated from the transformed request after Ocelot processing (downstream request) using the format: `method:scheme:host:port:path:query` (normalized to lowercase).
+
+You can customize the downstream cache key generation:
+
+```csharp
+p.CacheKey(downstreamRequest => $"custom:{downstreamRequest.Method}:{downstreamRequest.AbsolutePath}");
+```
+
+### 2. Upstream Cache Key (New)
+
+Uses the original request before Ocelot transformation (upstream request):
+
+```csharp
+// Default upstream cache key (method:scheme:host:path:query)
+p.UpstreamCacheKey();
+
+// Custom upstream cache key generator
+p.UpstreamCacheKey(request => $"upstream:{request.Method}:{request.Path}");
 ```
 
 ## Tag templates
