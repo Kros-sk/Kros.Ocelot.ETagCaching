@@ -11,9 +11,9 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Setup .NET Core if needed
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version:  8.0.x
     - name: Set execute permission for build.sh
@@ -36,7 +36,7 @@ jobs:
     - name: Stryker
       run: ./build.sh --target MutationTest --configuration Release
     - name: Upload Stryker Results as Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: stryker-results
         path: '**/StrykerOutput/**/*.html'
@@ -46,9 +46,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup .NET Core if needed
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version:  8.0.x
       - name: Set execute permission for build.sh
