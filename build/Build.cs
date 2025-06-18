@@ -3,7 +3,6 @@ using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
-using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Utilities.Collections;
 using Serilog;
 using Spectre.Console;
@@ -59,7 +58,8 @@ partial class Build : NukeBuild
         {
             DotNetRestore(s => s
                 .SetProjectFile(Solution)
-                .When(AffectedOnly, ss => ss.SetProjectFile(AffectedProjectPath)));
+                .When(_ => AffectedOnly,
+                    ss => ss.SetProjectFile(AffectedProjectPath)));
         });
 
     Target Compile => _ => _
@@ -72,7 +72,7 @@ partial class Build : NukeBuild
                 .SetConfiguration(Configuration)
                 .SetProjectFile(Solution)
                 .AddProperty("TreatWarningsAsErrors", true)
-                .When(AffectedOnly, ss => ss.SetProjectFile(AffectedProjectPath))
+                .When(_ => AffectedOnly, ss => ss.SetProjectFile(AffectedProjectPath))
                 .EnableNoRestore());
         });
 
@@ -86,7 +86,7 @@ partial class Build : NukeBuild
                 .SetProjectFile(Solution)
                 .AddLoggers("trx")
                 .SetResultsDirectory(TestResultsDirectory)
-                .When(AffectedOnly, ss => ss.SetProjectFile(AffectedProjectPath))
+                .When(_ => AffectedOnly, ss => ss.SetProjectFile(AffectedProjectPath))
                 .EnableNoBuild());
         });
 
@@ -111,7 +111,8 @@ partial class Build : NukeBuild
                     .EnableNoRestore()
                     .SetNoDependencies(true)
                     .SetOutputDirectory(OutputDirectory)
-                    .When(IsDebug, ss => ss.SetVersionSuffix(Environment.MachineName))));
+                    .When(_ => IsDebug,
+                        ss => ss.SetVersionSuffix(Environment.MachineName))));
         });
 
     Target Push => _ => _
