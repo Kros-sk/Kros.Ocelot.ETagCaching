@@ -39,15 +39,15 @@ internal static class CacheKeyGenerator
     {
         const char delimiter = ':';
         var sb = new StringBuilder();
-        sb.Append(method.ToLower());
+        sb.Append(method.ToLowerInvariant());
         sb.Append(delimiter);
-        sb.Append(scheme.ToLower());
+        sb.Append(scheme.ToLowerInvariant());
         sb.Append(delimiter);
-        sb.Append(host.ToLower());
+        sb.Append(host.ToLowerInvariant());
         sb.Append(delimiter);
-        sb.Append(path.ToLower());
+        sb.Append(path.ToLowerInvariant());
         sb.Append(delimiter);
-        sb.Append(query.ToLower());
+        sb.Append(query.ToLowerInvariant());
 
         return sb.ToString();
     }
