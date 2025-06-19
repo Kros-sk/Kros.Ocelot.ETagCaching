@@ -150,7 +150,7 @@ p.CacheKey(downstreamRequest => $"custom:{downstreamRequest.Method}:{downstreamR
 Uses the original request before Ocelot transformation (upstream request):
 
 ```csharp
-// Default upstream cache key (method:scheme:host:path:query)
+// Default upstream cache key (method:scheme:host:port:path:query)
 p.UpstreamCacheKey();
 
 // Custom upstream cache key generator

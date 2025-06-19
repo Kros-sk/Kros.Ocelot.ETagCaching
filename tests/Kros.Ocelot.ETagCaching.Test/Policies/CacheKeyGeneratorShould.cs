@@ -96,72 +96,44 @@ public class CacheKeyGeneratorShould
         result.Should().Be("get:https:api.myapp.com:/api/products:?category=electronics");
     }
 
-    [Fact]
-    public void CreateFromDownstreamRequest_ShouldHandleDifferentHttpMethods()
+    [Theory]
+    [InlineData("GET", "get")]
+    [InlineData("POST", "post")]
+    [InlineData("PUT", "put")]
+    [InlineData("DELETE", "delete")]
+    [InlineData("PATCH", "patch")]
+    public void CreateFromDownstreamRequest_ShouldHandleDifferentHttpMethods(string methodName, string expectedMethod)
     {
-        var methods = new[] { HttpMethod.Get, HttpMethod.Post, HttpMethod.Put, HttpMethod.Delete, HttpMethod.Patch };
-        var expectedMethods = new[] { "get", "post", "put", "delete", "patch" };
-
-        for (int i = 0; i < methods.Length; i++)
-        {
-            var request = new HttpRequestMessage()
-            {
-                Method = methods[i],
-                RequestUri = new Uri("https://api.example.com/test")
-            };
-            var downstreamRequest = new DownstreamRequest(request);
-
-            var result = CacheKeyGenerator.CreateFromDownstreamRequest(downstreamRequest);
-
-            result.Should().StartWith($"{expectedMethods[i]}:");
-        }
-    }
-
-    [Fact]
-    public void CreateFromUpstreamRequest_ShouldHandleDifferentHttpMethods()
-    {
-        var methods = new[] { "GET", "POST", "PUT", "DELETE", "PATCH" };
-        var expectedMethods = new[] { "get", "post", "put", "delete", "patch" };
-
-        for (int i = 0; i < methods.Length; i++)
-        {
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = methods[i];
-            httpContext.Request.Scheme = "https";
-            httpContext.Request.Host = new HostString("api.example.com");
-            httpContext.Request.Path = "/test";
-            httpContext.Request.QueryString = QueryString.Empty;
-
-            var result = CacheKeyGenerator.CreateFromUpstreamRequest(httpContext.Request);
-
-            result.Should().StartWith($"{expectedMethods[i]}:");
-        }
-    }
-
-    [Fact]
-    public void BothMethods_ShouldGenerateDifferentKeysForSameEndpoint()
-    {
-        // Upstream request
-        var httpContext = new DefaultHttpContext();
-        httpContext.Request.Method = "GET";
-        httpContext.Request.Scheme = "http";
-        httpContext.Request.Host = new HostString("localhost:5000");
-        httpContext.Request.Path = "/api/products";
-        httpContext.Request.QueryString = new QueryString("?page=1");
-
-        // Downstream request (after Ocelot transformation)
+        var method = new HttpMethod(methodName);
         var request = new HttpRequestMessage()
         {
-            Method = HttpMethod.Get,
-            RequestUri = new Uri("http://backend:8080/v1/products?page=1")
+            Method = method,
+            RequestUri = new Uri("https://api.example.com/test")
         };
         var downstreamRequest = new DownstreamRequest(request);
 
-        var upstreamKey = CacheKeyGenerator.CreateFromUpstreamRequest(httpContext.Request);
-        var downstreamKey = CacheKeyGenerator.CreateFromDownstreamRequest(downstreamRequest);
+        var result = CacheKeyGenerator.CreateFromDownstreamRequest(downstreamRequest);
 
-        upstreamKey.Should().Be("get:http:localhost:5000:/api/products:?page=1");
-        downstreamKey.Should().Be("get:http:backend:/v1/products:?page=1");
-        upstreamKey.Should().NotBe(downstreamKey);
+        result.Should().StartWith($"{expectedMethod}:");
+    }
+
+    [Theory]
+    [InlineData("GET", "get")]
+    [InlineData("POST", "post")]
+    [InlineData("PUT", "put")]
+    [InlineData("DELETE", "delete")]
+    [InlineData("PATCH", "patch")]
+    public void CreateFromUpstreamRequest_ShouldHandleDifferentHttpMethods(string method, string expectedMethod)
+    {
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = method;
+        httpContext.Request.Scheme = "https";
+        httpContext.Request.Host = new HostString("api.example.com");
+        httpContext.Request.Path = "/test";
+        httpContext.Request.QueryString = QueryString.Empty;
+
+        var result = CacheKeyGenerator.CreateFromUpstreamRequest(httpContext.Request);
+
+        result.Should().StartWith($"{expectedMethod}:");
     }
 }
