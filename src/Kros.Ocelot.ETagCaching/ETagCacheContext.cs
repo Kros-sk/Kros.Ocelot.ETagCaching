@@ -25,6 +25,11 @@ public sealed class ETagCacheContext
     public required IServiceProvider RequestServices { get; init; }
 
     /// <summary>
+    /// Gets the original HTTP context (before Ocelot transformation).
+    /// </summary>
+    public required HttpContext HttpContext { get; init; }
+
+    /// <summary>
     /// Downstream route template placeholder names and values (from current request).
     /// </summary>
     public required List<PlaceholderNameAndValue> TemplatePlaceholderNameAndValues { get; init; }

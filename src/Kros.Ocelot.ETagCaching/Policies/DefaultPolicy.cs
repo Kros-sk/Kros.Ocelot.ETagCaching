@@ -2,7 +2,6 @@
 using Microsoft.Net.Http.Headers;
 using Ocelot.Request.Middleware;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace Kros.Ocelot.ETagCaching.Policies;
 
@@ -12,7 +11,7 @@ internal sealed class DefaultPolicy : IETagCachePolicy
     {
     }
 
-    public static DefaultPolicy Instance { get; } = new DefaultPolicy();
+    public static DefaultPolicy Instance { get; } = new();
 
     public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
@@ -88,22 +87,8 @@ internal sealed class DefaultPolicy : IETagCachePolicy
     private static bool IsGetMethod(ETagCacheContext context)
         => context.DownstreamRequest.Method == HttpMethods.Get;
 
-    private static string CreateCacheKey(DownstreamRequest downstreamRequest)
-    {
-        const char delimiter = ':';
-        var sb = new StringBuilder();
-        sb.Append(downstreamRequest.Method.ToLower());
-        sb.Append(delimiter);
-        sb.Append(downstreamRequest.Scheme.ToLower());
-        sb.Append(delimiter);
-        sb.Append(downstreamRequest.Host.ToLower());
-        sb.Append(delimiter);
-        sb.Append(downstreamRequest.AbsolutePath.ToLower());
-        sb.Append(delimiter);
-        sb.Append(downstreamRequest.Query.ToLower());
-
-        return sb.ToString();
-    }
+    private static string CreateCacheKey(DownstreamRequest downstreamRequest) =>
+        CacheKeyGenerator.CreateFromDownstreamRequest(downstreamRequest);
 
     private static bool AllowServeFromCache(ETagCacheContext context, [NotNullWhen(true)] out EntityTagHeaderValue? entityTag)
     {

@@ -30,7 +30,8 @@ public class ETagPolicyShould
         await defaultPolicy.ServeNotModifiedAsync(context2, default);
         await extraPropsPolicy.ServeNotModifiedAsync(context2, default);
 
-        context.Should().BeEquivalentTo(context2);
+        context.Should().BeEquivalentTo(context2,
+            o => o.Excluding(p => p.HttpContext));
     }
 
     [Fact]
@@ -49,6 +50,7 @@ public class ETagPolicyShould
         context.Should().BeEquivalentTo(context2,
             options => options
                 .Excluding(p => p.ResponseHeaders)
-                .Excluding(p => p.ETag));
+                .Excluding(p => p.ETag)
+                .Excluding(p=> p.HttpContext));
     }
 }

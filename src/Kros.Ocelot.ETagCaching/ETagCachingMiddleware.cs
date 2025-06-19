@@ -175,6 +175,7 @@ internal partial class ETagCachingMiddleware(
         DownstreamRequest = context.Items.DownstreamRequest(),
         RequestFeatures = context.Features,
         RequestServices = context.RequestServices,
+        HttpContext = context,
         TemplatePlaceholderNameAndValues = context.Items.TemplatePlaceholderNameAndValues()
     };
 

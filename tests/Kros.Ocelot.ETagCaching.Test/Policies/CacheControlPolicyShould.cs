@@ -55,6 +55,7 @@ public class CacheControlPolicyShould
         await defaultPolicy.CacheETagAsync(context2, default);
         await policy.CacheETagAsync(context2, default);
 
-        context.Should().BeEquivalentTo(context2);
+        context.Should().BeEquivalentTo(context2, o =>
+            o.Excluding(p => p.HttpContext));
     }
 }

@@ -12,9 +12,20 @@ internal static class ETagCacheContextFactory
     public static ETagCacheContext CreateContext(
         string httpMethod = "GET",
         HttpStatusCode statusCode = HttpStatusCode.OK,
-        string etagValue = "default")
+        string etagValue = "default",
+        string? upstreamPath = null,
+        string? upstreamQuery = null)
     {
-        var httpContext = new DefaultHttpContext();
+        var httpContext = new DefaultHttpContext { Request =
+            {
+                Method = httpMethod,
+                Scheme = "http",
+                Host = new HostString("localhost:5000"),
+                Path = upstreamPath ?? "/api/1/products",
+                QueryString = new QueryString(upstreamQuery ?? "?skip=10&take=5")
+            }
+        };
+
         var request = new HttpRequestMessage()
         {
             Method = new HttpMethod(httpMethod),
@@ -24,6 +35,7 @@ internal static class ETagCacheContextFactory
         {
             RequestFeatures = httpContext.Features,
             RequestServices = httpContext.RequestServices,
+            HttpContext = httpContext,
             TemplatePlaceholderNameAndValues = [],
             DownstreamRequest = new DownstreamRequest(request),
             DownstreamResponse = new DownstreamResponse(new HttpResponseMessage(statusCode)),

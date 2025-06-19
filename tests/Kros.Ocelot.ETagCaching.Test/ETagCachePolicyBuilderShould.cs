@@ -88,4 +88,61 @@ public class ETagCachePolicyBuilderShould
         public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
             => ValueTask.CompletedTask;
     }
+
+    [Fact]
+    public async Task BuildUpstreamCacheKeyPolicy_WithCustomGenerator()
+    {
+        var builder = new ETagCachePolicyBuilder(true);
+
+        builder.UpstreamCacheKey(request => $"upstream:{request.Method}:{request.Path}");
+
+        var policy = builder.Build();
+        var context = ETagCacheContextFactory.CreateContext(
+            httpMethod: "POST",
+            upstreamPath: "/api/1/orders");
+
+        await policy.CacheETagAsync(context, default);
+
+        context.CacheKey.Should().Be("upstream:POST:/api/1/orders");
+    }
+
+    [Fact]
+    public async Task BuildUpstreamCacheKeyPolicy_WithDefaultGenerator()
+    {
+        var builder = new ETagCachePolicyBuilder(true);
+
+        builder.UpstreamCacheKey();
+
+        var policy = builder.Build();
+        var context = ETagCacheContextFactory.CreateContext(
+            httpMethod: "GET",
+            upstreamPath: "/api/1/products",
+            upstreamQuery: "?category=electronics");
+
+        await policy.CacheETagAsync(context, default);
+
+        var expectedKey = "get:http:localhost:5000:/api/1/products:?category=electronics";
+        context.CacheKey.Should().Be(expectedKey);
+    }
+
+    [Fact]
+    public async Task BuildUpstreamCacheKeyPolicy_ShouldChainWithOtherPolicies()
+    {
+        var builder = new ETagCachePolicyBuilder(true);
+
+        builder.UpstreamCacheKey(request => $"chain:{request.Path}")
+            .Expire(TimeSpan.FromMinutes(5))
+            .StatusCode(304);
+
+        var policy = builder.Build();
+        var context = ETagCacheContextFactory.CreateContext(
+            upstreamPath: "/api/1/users");
+
+        await policy.CacheETagAsync(context, default);
+        await policy.ServeNotModifiedAsync(context, default);
+
+        context.CacheKey.Should().Be("chain:/api/1/users");
+        context.ETagExpirationTimeSpan.Should().Be(TimeSpan.FromMinutes(5));
+        context.StatusCode.Should().Be(HttpStatusCode.NotModified);
+    }
 }

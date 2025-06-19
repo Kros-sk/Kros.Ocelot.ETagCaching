@@ -32,7 +32,8 @@ public class StatusCodePolicyShould
         context.Should().BeEquivalentTo(context2,
             options => options
                 .Excluding(p => p.ResponseHeaders)
-                .Excluding(p => p.ETag));
+                .Excluding(p => p.ETag)
+                .Excluding(p => p.HttpContext));
     }
 
     [Fact]
@@ -48,6 +49,8 @@ public class StatusCodePolicyShould
         await defaultPolicy.CacheETagAsync(context2, default);
         await extraPropsPolicy.CacheETagAsync(context2, default);
 
-        context.Should().BeEquivalentTo(context2);
+        context.Should().BeEquivalentTo(context2,
+            o => o
+                .Excluding(p => p.HttpContext));
     }
 }
