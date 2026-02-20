@@ -2,7 +2,7 @@
 
 namespace Kros.Ocelot.ETagCaching.Test.Policies;
 
-public class CacheEntryEstraPropsPolicyShould
+public class CacheEntryExtraPropsPolicyShould
 {
     [Fact]
     public async Task AddExtraPropsToCacheEntry()
@@ -54,7 +54,7 @@ public class CacheEntryEstraPropsPolicyShould
     public async Task NotChangeContextState_WhenServeNotModifiedAsyncWasCall()
     {
         var defaultPolicy = DefaultPolicy.Instance;
-        var extraPropsPolicy = new CacheEntryExtraPropsPolicy(new Dictionary<string, object>());
+        var extraPropsPolicy = new CacheEntryExtraPropsPolicy([]);
 
         var context = ETagCacheContextFactory.CreateContext();
         await defaultPolicy.ServeNotModifiedAsync(context, TestContext.Current.CancellationToken);
@@ -70,7 +70,7 @@ public class CacheEntryEstraPropsPolicyShould
     public async Task NotChangeContextState_WhenServeDownstreamResponseAsyncWasCall()
     {
         var defaultPolicy = DefaultPolicy.Instance;
-        var extraPropsPolicy = new CacheEntryExtraPropsPolicy(new Dictionary<string, object>());
+        var extraPropsPolicy = new CacheEntryExtraPropsPolicy([]);
 
         var context = ETagCacheContextFactory.CreateContext();
         await defaultPolicy.ServeDownstreamResponseAsync(context, TestContext.Current.CancellationToken);
