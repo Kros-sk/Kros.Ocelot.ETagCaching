@@ -3,34 +3,25 @@
 [assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v8.0", FrameworkDisplayName=".NET 8.0")]
 namespace Kros.Ocelot.ETagCaching
 {
-    [System.Runtime.CompilerServices.RequiredMember]
     public sealed class ETagCacheContext
     {
-        [System.Obsolete("Constructors of types with required members are not supported in this version of " +
-            "your compiler.", true)]
-        [System.Runtime.CompilerServices.CompilerFeatureRequired("RequiredMembers")]
         public ETagCacheContext() { }
         public bool AllowCacheResponseETag { get; set; }
         public bool AllowNotModified { get; set; }
         public System.Collections.Generic.Dictionary<string, object?> CacheEntryExtraProps { get; }
         public Microsoft.AspNetCore.Http.HeaderDictionary CachedResponseHeaders { get; }
+        public required Ocelot.Request.Middleware.DownstreamRequest DownstreamRequest { get; init; }
         public Ocelot.Middleware.DownstreamResponse? DownstreamResponse { get; set; }
         public Microsoft.Net.Http.Headers.EntityTagHeaderValue ETag { get; set; }
         public System.TimeSpan ETagExpirationTimeSpan { get; set; }
         public bool EnableETagCache { get; set; }
+        public required Microsoft.AspNetCore.Http.HttpContext HttpContext { get; init; }
+        public required Microsoft.AspNetCore.Http.Features.IFeatureCollection RequestFeatures { get; init; }
+        public required System.IServiceProvider RequestServices { get; init; }
         public Microsoft.AspNetCore.Http.HeaderDictionary ResponseHeaders { get; }
         public System.Net.HttpStatusCode StatusCode { get; set; }
         public System.Collections.Generic.HashSet<string> Tags { get; }
-        [System.Runtime.CompilerServices.RequiredMember]
-        public Ocelot.Request.Middleware.DownstreamRequest DownstreamRequest { get; init; }
-        [System.Runtime.CompilerServices.RequiredMember]
-        public Microsoft.AspNetCore.Http.HttpContext HttpContext { get; init; }
-        [System.Runtime.CompilerServices.RequiredMember]
-        public Microsoft.AspNetCore.Http.Features.IFeatureCollection RequestFeatures { get; init; }
-        [System.Runtime.CompilerServices.RequiredMember]
-        public System.IServiceProvider RequestServices { get; init; }
-        [System.Runtime.CompilerServices.RequiredMember]
-        public System.Collections.Generic.List<Ocelot.DownstreamRouteFinder.UrlMatcher.PlaceholderNameAndValue> TemplatePlaceholderNameAndValues { get; init; }
+        public required System.Collections.Generic.List<Ocelot.DownstreamRouteFinder.UrlMatcher.PlaceholderNameAndValue> TemplatePlaceholderNameAndValues { get; init; }
         public override string ToString() { }
     }
     public sealed class ETagCacheFeature
@@ -75,23 +66,15 @@ namespace Kros.Ocelot.ETagCaching
     {
         System.Threading.Tasks.ValueTask InvalidateCacheAsync(Kros.Ocelot.ETagCaching.InvalidateCacheContext context, System.Threading.CancellationToken cancellationToken);
     }
-    [System.Runtime.CompilerServices.RequiredMember]
     public sealed class InvalidateCacheContext
     {
-        [System.Obsolete("Constructors of types with required members are not supported in this version of " +
-            "your compiler.", true)]
-        [System.Runtime.CompilerServices.CompilerFeatureRequired("RequiredMembers")]
         public InvalidateCacheContext() { }
         public bool AllowCacheInvalidation { get; set; }
+        public required Ocelot.Request.Middleware.DownstreamRequest DownstreamRequest { get; init; }
+        public required Microsoft.AspNetCore.Http.Features.IFeatureCollection RequestFeatures { get; init; }
+        public required System.IServiceProvider RequestServices { get; init; }
         public System.Collections.Generic.HashSet<string> Tags { get; }
-        [System.Runtime.CompilerServices.RequiredMember]
-        public Ocelot.Request.Middleware.DownstreamRequest DownstreamRequest { get; init; }
-        [System.Runtime.CompilerServices.RequiredMember]
-        public Microsoft.AspNetCore.Http.Features.IFeatureCollection RequestFeatures { get; init; }
-        [System.Runtime.CompilerServices.RequiredMember]
-        public System.IServiceProvider RequestServices { get; init; }
-        [System.Runtime.CompilerServices.RequiredMember]
-        public System.Collections.Generic.List<Ocelot.DownstreamRouteFinder.UrlMatcher.PlaceholderNameAndValue> TemplatePlaceholderNameAndValues { get; init; }
+        public required System.Collections.Generic.List<Ocelot.DownstreamRouteFinder.UrlMatcher.PlaceholderNameAndValue> TemplatePlaceholderNameAndValues { get; init; }
     }
     public sealed class InvalidateCachePolicyBuilder
     {

@@ -6,8 +6,7 @@
   <ItemGroup>
     <PackageReference Include="NetArchTest.Rules" />
     <PackageReference Include="PublicApiGenerator" />
-    <PackageReference Include="Verify" />
-    <PackageReference Include="Verify.Xunit" />
+    <PackageReference Include="Verify.XunitV3" />
     <PackageReference Include="WireMock.Net" />
   </ItemGroup>
   <ItemGroup>
