@@ -17,9 +17,9 @@ public class InvalidateDefaultPolicyShould
         var context = InvalidateCacheContextFactory.CreateContext(method);
         var policy = new InvalidateDefaultPolicy(["products"]);
 
-        await policy.InvalidateCacheAsync(context, default);
+        await policy.InvalidateCacheAsync(context, TestContext.Current.CancellationToken);
 
-        context.AllowCacheInvalidation.Should().Be(invalidated);
+        Assert.Equal(invalidated, context.AllowCacheInvalidation);
     }
 
     [Fact]
@@ -28,8 +28,8 @@ public class InvalidateDefaultPolicyShould
         var context = InvalidateCacheContextFactory.CreateContext();
         var policy = new InvalidateDefaultPolicy(["products:{tenantId}", "products:{tenantId}:{id}"]);
 
-        await policy.InvalidateCacheAsync(context, default);
+        await policy.InvalidateCacheAsync(context, TestContext.Current.CancellationToken);
 
-        context.Tags.Should().BeEquivalentTo(["products:1", "products:1:2"]);
+        Assert.Equal(["products:1", "products:1:2"], context.Tags);
     }
 }

@@ -1,4 +1,4 @@
-using Kros.Ocelot.ETagCaching.Policies;
+﻿using Kros.Ocelot.ETagCaching.Policies;
 using Microsoft.AspNetCore.Http;
 using Ocelot.Request.Middleware;
 
@@ -18,7 +18,7 @@ public class CacheKeyGeneratorShould
 
         var result = CacheKeyGenerator.CreateFromDownstreamRequest(downstreamRequest);
 
-        result.Should().Be("get:https:api.example.com:/products:?category=electronics&page=1");
+        Assert.Equal("get:https:api.example.com:/products:?category=electronics&page=1", result);
     }
 
     [Fact]
@@ -33,7 +33,7 @@ public class CacheKeyGeneratorShould
 
         var result = CacheKeyGenerator.CreateFromUpstreamRequest(httpContext.Request);
 
-        result.Should().Be("post:http:localhost:5000:/api/v1/orders:?include=details&format=json");
+        Assert.Equal("post:http:localhost:5000:/api/v1/orders:?include=details&format=json", result);
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class CacheKeyGeneratorShould
 
         var result = CacheKeyGenerator.CreateFromDownstreamRequest(downstreamRequest);
 
-        result.Should().Be("delete:https:api.example.com:/users/123:");
+        Assert.Equal("delete:https:api.example.com:/users/123:", result);
     }
 
     [Fact]
@@ -63,7 +63,7 @@ public class CacheKeyGeneratorShould
 
         var result = CacheKeyGenerator.CreateFromUpstreamRequest(httpContext.Request);
 
-        result.Should().Be("put:https:api.myapp.com:/api/users/456:");
+        Assert.Equal("put:https:api.myapp.com:/api/users/456:", result);
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public class CacheKeyGeneratorShould
 
         var result = CacheKeyGenerator.CreateFromDownstreamRequest(downstreamRequest);
 
-        result.Should().Be("get:https:api.example.com:/products:?category=electronics");
+        Assert.Equal("get:https:api.example.com:/products:?category=electronics", result);
     }
 
     [Fact]
@@ -93,7 +93,7 @@ public class CacheKeyGeneratorShould
 
         var result = CacheKeyGenerator.CreateFromUpstreamRequest(httpContext.Request);
 
-        result.Should().Be("get:https:api.myapp.com:/api/products:?category=electronics");
+        Assert.Equal("get:https:api.myapp.com:/api/products:?category=electronics", result);
     }
 
     [Theory]
@@ -114,7 +114,7 @@ public class CacheKeyGeneratorShould
 
         var result = CacheKeyGenerator.CreateFromDownstreamRequest(downstreamRequest);
 
-        result.Should().StartWith($"{expectedMethod}:");
+        Assert.StartsWith($"{expectedMethod}:", result);
     }
 
     [Theory]
@@ -134,6 +134,6 @@ public class CacheKeyGeneratorShould
 
         var result = CacheKeyGenerator.CreateFromUpstreamRequest(httpContext.Request);
 
-        result.Should().StartWith($"{expectedMethod}:");
+        Assert.StartsWith($"{expectedMethod}:", result);
     }
 }

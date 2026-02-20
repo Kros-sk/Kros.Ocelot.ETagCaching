@@ -25,7 +25,7 @@ public class ETagCachingMiddlewareShould
 
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
 
-        store.WasCallSetAsync.Should().BeFalse();
+        Assert.False(store.WasCallSetAsync);
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class ETagCachingMiddlewareShould
 
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
 
-        store.WasCallSetAsync.Should().BeFalse();
+        Assert.False(store.WasCallSetAsync);
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class ETagCachingMiddlewareShould
 
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
 
-        store.WasCallSetAsync.Should().BeTrue();
+        Assert.True(store.WasCallSetAsync);
     }
 
     [Fact]
@@ -79,8 +79,10 @@ public class ETagCachingMiddlewareShould
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
 
         var response = context.Items.DownstreamResponse();
-        response.Headers.Should().ContainEquivalentOf(new Header("Cache-Control", ["private"]));
-        response.Headers.Should().ContainEquivalentOf(new Header("ETag", ["\"123\""]));
+        Assert.Contains(response.Headers, header =>
+            header.Key == "Cache-Control" && header.Values.Contains("private"));
+        Assert.Contains(response.Headers, header =>
+            header.Key == "ETag" && header.Values.Contains("\"123\""));
     }
 
     [Fact]
@@ -101,7 +103,7 @@ public class ETagCachingMiddlewareShould
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
 
         var response = context.Items.DownstreamResponse();
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotModified);
+        Assert.Equal(System.Net.HttpStatusCode.NotModified, response.StatusCode);
     }
 
     [Fact]
@@ -122,7 +124,7 @@ public class ETagCachingMiddlewareShould
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
 
         var response = context.Items.DownstreamResponse();
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
@@ -143,7 +145,7 @@ public class ETagCachingMiddlewareShould
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
 
         var response = context.Items.DownstreamResponse();
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
@@ -161,8 +163,8 @@ public class ETagCachingMiddlewareShould
 
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
         var feature = context.Features.Get<ETagCacheFeature>()!;
-        feature.Should().NotBeNull();
-        feature.ETagCacheContext.Should().NotBeNull();
+        Assert.NotNull(feature);
+        Assert.NotNull(feature.ETagCacheContext);
     }
 
     [Fact]
@@ -182,8 +184,10 @@ public class ETagCachingMiddlewareShould
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
 
         var response = context.Items.DownstreamResponse();
-        response.Headers.Should().ContainEquivalentOf(new Header("Cache-Control", ["private"]));
-        response.Headers.Should().ContainEquivalentOf(new Header("ETag", ["\"123\""]));
+        Assert.Contains(response.Headers, header =>
+            header.Key == "Cache-Control" && header.Values.Contains("private"));
+        Assert.Contains(response.Headers, header =>
+            header.Key == "ETag" && header.Values.Contains("\"123\""));
     }
 
     [Fact]
@@ -205,7 +209,7 @@ public class ETagCachingMiddlewareShould
             return Task.CompletedTask;
         });
 
-        nextCalled.Should().BeTrue();
+        Assert.True(nextCalled);
     }
 
     [Fact]
@@ -228,7 +232,7 @@ public class ETagCachingMiddlewareShould
             return Task.CompletedTask;
         });
 
-        nextCalled.Should().BeTrue();
+        Assert.True(nextCalled);
     }
 
     [Fact]
@@ -251,7 +255,7 @@ public class ETagCachingMiddlewareShould
             return Task.CompletedTask;
         });
 
-        nextCalled.Should().BeTrue();
+        Assert.True(nextCalled);
     }
 
     [Fact]
@@ -276,7 +280,7 @@ public class ETagCachingMiddlewareShould
             return Task.CompletedTask;
         });
 
-        nextCalled.Should().BeFalse();
+        Assert.False(nextCalled);
     }
 
     [Fact]
@@ -300,7 +304,7 @@ public class ETagCachingMiddlewareShould
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
 
         var response = context.Items.DownstreamResponse();
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotModified);
+        Assert.Equal(System.Net.HttpStatusCode.NotModified, response.StatusCode);
     }
 
     [Fact]
@@ -318,7 +322,7 @@ public class ETagCachingMiddlewareShould
         var context = CreateHttpContext();
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
 
-        logger.ExecuteCount.Should().Be(5);
+        Assert.Equal(5, logger.ExecuteCount);
     }
 
     [Fact]
@@ -339,7 +343,7 @@ public class ETagCachingMiddlewareShould
 
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
 
-        logger.ExecuteCount.Should().Be(4);
+        Assert.Equal(4, logger.ExecuteCount);
     }
 
     [Fact]
@@ -359,7 +363,7 @@ public class ETagCachingMiddlewareShould
         context.Items.UpsertTemplatePlaceholderNameAndValues([new("{tenantId}", "2"), new("{id}", "3")]);
         await middleware.InvokeAsync(context, () => Task.CompletedTask);
 
-        store.EvictedTags.Should().Be("tenant:2:product:3;tenant:2;");
+        Assert.Equal("tenant:2:product:3;tenant:2;", store.EvictedTags);
     }
 
     private static DownstreamRequest CreateRequest(IEnumerable<(string header, string value)> headers)

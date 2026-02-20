@@ -59,11 +59,11 @@ public class CompositePolicyShould
         var compositePolicy = new CompositePolicy([policy1, policy2, policy3]);
 
         var context = ETagCacheContextFactory.CreateContext();
-        await compositePolicy.CacheETagAsync(context, default);
-        await compositePolicy.ServeDownstreamResponseAsync(context, default);
-        await compositePolicy.ServeNotModifiedAsync(context, default);
+        await compositePolicy.CacheETagAsync(context, TestContext.Current.CancellationToken);
+        await compositePolicy.ServeDownstreamResponseAsync(context, TestContext.Current.CancellationToken);
+        await compositePolicy.ServeNotModifiedAsync(context, TestContext.Current.CancellationToken);
 
-        context.CacheEntryExtraProps.Should().BeEquivalentTo(new Dictionary<string, object>
+        var expected = new Dictionary<string, object?>
         {
             { "CacheETag", "policy3" },
             { "policy1-CacheETag", 1 },
@@ -77,7 +77,8 @@ public class CompositePolicyShould
             { "policy1-ServeDownstreamResponse", 1 },
             { "policy2-ServeDownstreamResponse", 2 },
             { "policy3-ServeDownstreamResponse", 3 }
-        });
+        };
+        AssertHelpers.AssertDictionaryEquivalent(expected, context.CacheEntryExtraProps);
     }
 
     private class HelperPolicy(

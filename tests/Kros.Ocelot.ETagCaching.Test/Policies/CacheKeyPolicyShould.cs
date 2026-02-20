@@ -13,9 +13,9 @@ public class CacheKeyPolicyShould
         var policy = new CacheKeyPolicy(keyGenerator);
 
         var context = ETagCacheContextFactory.CreateContext();
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        context.CacheKey.Should().Be(keyGenerator(context.DownstreamRequest));
+        Assert.Equal(keyGenerator(context.DownstreamRequest), context.CacheKey);
     }
 
     [Fact]
@@ -25,14 +25,13 @@ public class CacheKeyPolicyShould
         var extraPropsPolicy = new CacheKeyPolicy((_) => string.Empty);
 
         var context = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeNotModifiedAsync(context, default);
+        await defaultPolicy.ServeNotModifiedAsync(context, TestContext.Current.CancellationToken);
 
         var context2 = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeNotModifiedAsync(context2, default);
-        await extraPropsPolicy.ServeNotModifiedAsync(context2, default);
+        await defaultPolicy.ServeNotModifiedAsync(context2, TestContext.Current.CancellationToken);
+        await extraPropsPolicy.ServeNotModifiedAsync(context2, TestContext.Current.CancellationToken);
 
-        context.Should().BeEquivalentTo(context2, o =>
-            o.Excluding(p => p.HttpContext));
+        AssertHelpers.AssertContextEqual(context, context2);
     }
 
     [Fact]
@@ -42,17 +41,13 @@ public class CacheKeyPolicyShould
         var extraPropsPolicy = new CacheKeyPolicy((_) => string.Empty);
 
         var context = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeDownstreamResponseAsync(context, default);
+        await defaultPolicy.ServeDownstreamResponseAsync(context, TestContext.Current.CancellationToken);
 
         var context2 = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeDownstreamResponseAsync(context2, default);
-        await extraPropsPolicy.ServeDownstreamResponseAsync(context2, default);
+        await defaultPolicy.ServeDownstreamResponseAsync(context2, TestContext.Current.CancellationToken);
+        await extraPropsPolicy.ServeDownstreamResponseAsync(context2, TestContext.Current.CancellationToken);
 
-        context.Should().BeEquivalentTo(context2,
-            options => options
-                .Excluding(p => p.ResponseHeaders)
-                .Excluding(p => p.ETag)
-                .Excluding(p => p.HttpContext));
+        AssertHelpers.AssertContextEqual(context, context2, excludeResponseHeaders: true, excludeETag: true);
     }
 
     [Fact]
@@ -64,9 +59,9 @@ public class CacheKeyPolicyShould
         var context = ETagCacheContextFactory.CreateContext(
             upstreamPath: "/api/1/products",
             upstreamQuery: "?filter=active");
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        context.CacheKey.Should().Be("custom:GET:/api/1/products");
+        Assert.Equal("custom:GET:/api/1/products", context.CacheKey);
     }
 
     [Fact]
@@ -78,10 +73,10 @@ public class CacheKeyPolicyShould
             httpMethod: "POST",
             upstreamPath: "/api/1/orders",
             upstreamQuery: "?include=details");
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
         var expectedKey = "post:http:localhost:5000:/api/1/orders:?include=details";
-        context.CacheKey.Should().Be(expectedKey);
+        Assert.Equal(expectedKey, context.CacheKey);
     }
 
     [Fact]
@@ -92,10 +87,10 @@ public class CacheKeyPolicyShould
         var context = ETagCacheContextFactory.CreateContext(
             upstreamPath: "/api/1/users",
             upstreamQuery: "");
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
         var expectedKey = "get:http:localhost:5000:/api/1/users:";
-        context.CacheKey.Should().Be(expectedKey);
+        Assert.Equal(expectedKey, context.CacheKey);
     }
 
     [Fact]
@@ -106,15 +101,15 @@ public class CacheKeyPolicyShould
         var getContext = ETagCacheContextFactory.CreateContext(
             httpMethod: "GET",
             upstreamPath: "/api/1/products");
-        await policy.CacheETagAsync(getContext, default);
+        await policy.CacheETagAsync(getContext, TestContext.Current.CancellationToken);
 
         var postContext = ETagCacheContextFactory.CreateContext(
             httpMethod: "POST",
             upstreamPath: "/api/1/products");
-        await policy.CacheETagAsync(postContext, default);
+        await policy.CacheETagAsync(postContext, TestContext.Current.CancellationToken);
 
-        getContext.CacheKey.Should().StartWith("get:");
-        postContext.CacheKey.Should().StartWith("post:");
-        getContext.CacheKey.Should().NotBe(postContext.CacheKey);
+        Assert.StartsWith("get:", getContext.CacheKey);
+        Assert.StartsWith("post:", postContext.CacheKey);
+        Assert.NotEqual(postContext.CacheKey, getContext.CacheKey);
     }
 }

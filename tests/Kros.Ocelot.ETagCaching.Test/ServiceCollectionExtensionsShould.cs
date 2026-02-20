@@ -28,10 +28,10 @@ public class ServiceCollectionExtensionsShould
 
         var context = ETagCacheContextFactory.CreateContext();
 
-        await policy!.CacheETagAsync(context, default);
+        await policy!.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        context.ETagExpirationTimeSpan.Should().Be(TimeSpan.FromHours(8));
-        context.EnableETagCache.Should().BeTrue();
+        Assert.Equal(TimeSpan.FromHours(8), context.ETagExpirationTimeSpan);
+        Assert.True(context.EnableETagCache);
     }
 
     [Fact]
@@ -53,9 +53,9 @@ public class ServiceCollectionExtensionsShould
         var context = ETagCacheContextFactory.CreateContext();
         context.EnableETagCache = false;
 
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        context.EnableETagCache.Should().BeFalse();
+        Assert.False(context.EnableETagCache);
     }
 
     [Fact]
@@ -73,9 +73,9 @@ public class ServiceCollectionExtensionsShould
 
         var serviceProvider = services.BuildServiceProvider();
         var options = serviceProvider.GetRequiredService<IOptions<ETagCachingOptions>>().Value;
-        act.Should()
-            .Throw<ArgumentException>()
-            .WithMessage("Policy with name 'getAllProduct' already exists. (Parameter 'getAllProduct')");
+        Assert.NotNull(act);
+        var exception = Assert.Throws<ArgumentException>(act);
+        Assert.Equal("Policy with name 'getAllProduct' already exists. (Parameter 'getAllProduct')", exception.Message);
     }
 
     [Fact]
@@ -94,9 +94,9 @@ public class ServiceCollectionExtensionsShould
         var policy = options.GetInvalidatePolicy("invalidateProduct");
 
         var context = InvalidateCacheContextFactory.CreateContext();
-        await policy.InvalidateCacheAsync(context, default);
+        await policy.InvalidateCacheAsync(context, TestContext.Current.CancellationToken);
 
-        context.Tags.Should().BeEquivalentTo(["product:1", "product:1:2"]);
+        Assert.Equal(["product:1", "product:1:2"], context.Tags);
     }
 
     [Fact]
@@ -114,8 +114,8 @@ public class ServiceCollectionExtensionsShould
 
         var serviceProvider = services.BuildServiceProvider();
         var options = serviceProvider.GetRequiredService<IOptions<ETagCachingOptions>>().Value;
-        act.Should()
-            .Throw<ArgumentException>()
-            .WithMessage("Policy with name 'invalidateProduct' already exists. (Parameter 'invalidateProduct')");
+        Assert.NotNull(act);
+        var exception = Assert.Throws<ArgumentException>(act);
+        Assert.Equal("Policy with name 'invalidateProduct' already exists. (Parameter 'invalidateProduct')", exception.Message);
     }
 }

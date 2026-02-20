@@ -15,6 +15,6 @@ public class ArchTests
                 .NotBePublic()
             .GetResult();
 
-        result.IsSuccessful.Should().BeTrue("Policies namespace should contain only internal classes");
+        Assert.True(result.IsSuccessful, "Policies namespace should contain only internal classes");
     }
 }

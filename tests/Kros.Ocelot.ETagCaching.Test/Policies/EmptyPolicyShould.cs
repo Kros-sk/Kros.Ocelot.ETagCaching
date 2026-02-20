@@ -11,14 +11,13 @@ public class EmptyPolicyShould
         var emptyPolicy = EmptyPolicy.Instance;
 
         var context = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.CacheETagAsync(context, default);
+        await defaultPolicy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
         var context2 = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.CacheETagAsync(context2, default);
-        await emptyPolicy.CacheETagAsync(context2, default);
+        await defaultPolicy.CacheETagAsync(context2, TestContext.Current.CancellationToken);
+        await emptyPolicy.CacheETagAsync(context2, TestContext.Current.CancellationToken);
 
-        context.Should().BeEquivalentTo(context2, o =>
-            o.Excluding(p => p.HttpContext));
+        AssertHelpers.AssertContextEqual(context, context2);
     }
 
     [Fact]
@@ -28,14 +27,13 @@ public class EmptyPolicyShould
         var emptyPolicy = EmptyPolicy.Instance;
 
         var context = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeNotModifiedAsync(context, default);
+        await defaultPolicy.ServeNotModifiedAsync(context, TestContext.Current.CancellationToken);
 
         var context2 = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeNotModifiedAsync(context2, default);
-        await emptyPolicy.ServeNotModifiedAsync(context2, default);
+        await defaultPolicy.ServeNotModifiedAsync(context2, TestContext.Current.CancellationToken);
+        await emptyPolicy.ServeNotModifiedAsync(context2, TestContext.Current.CancellationToken);
 
-        context.Should().BeEquivalentTo(context2, o =>
-            o.Excluding(p => p.HttpContext));
+        AssertHelpers.AssertContextEqual(context, context2);
     }
 
     [Fact]
@@ -45,16 +43,12 @@ public class EmptyPolicyShould
         var emptyPolicy = EmptyPolicy.Instance;
 
         var context = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeDownstreamResponseAsync(context, default);
+        await defaultPolicy.ServeDownstreamResponseAsync(context, TestContext.Current.CancellationToken);
 
         var context2 = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeDownstreamResponseAsync(context2, default);
-        await emptyPolicy.ServeDownstreamResponseAsync(context2, default);
+        await defaultPolicy.ServeDownstreamResponseAsync(context2, TestContext.Current.CancellationToken);
+        await emptyPolicy.ServeDownstreamResponseAsync(context2, TestContext.Current.CancellationToken);
 
-        context.Should().BeEquivalentTo(context2, options
-            => options
-                .Excluding(p => p.ResponseHeaders)
-                .Excluding(p=> p.ETag)
-                .Excluding(p => p.HttpContext));
+        AssertHelpers.AssertContextEqual(context, context2, excludeResponseHeaders: true, excludeETag: true);
     }
 }

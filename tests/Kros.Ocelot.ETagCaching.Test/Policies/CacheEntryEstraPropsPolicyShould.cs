@@ -7,7 +7,7 @@ public class CacheEntryEstraPropsPolicyShould
     [Fact]
     public async Task AddExtraPropsToCacheEntry()
     {
-        var extraProps = new Dictionary<string, object>
+        var extraProps = new Dictionary<string, object?>
         {
             { "prop1", "value1" },
             { "prop2", 2 }
@@ -15,20 +15,20 @@ public class CacheEntryEstraPropsPolicyShould
         var policy = new CacheEntryExtraPropsPolicy(extraProps);
 
         var context = ETagCacheContextFactory.CreateContext();
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        context.CacheEntryExtraProps.Should().BeEquivalentTo(extraProps);
+        AssertHelpers.AssertDictionaryEquivalent(extraProps, context.CacheEntryExtraProps);
     }
 
     [Fact]
     public async Task AddMultipleExtraPropsToCacheEntry()
     {
-        var extraProps = new Dictionary<string, object>
+        var extraProps = new Dictionary<string, object?>
         {
             { "prop1", "value1" },
             { "prop2", 2 }
         };
-        var extraProps2 = new Dictionary<string, object>
+        var extraProps2 = new Dictionary<string, object?>
         {
             { "prop2", 33 },
             { "prop3", "value3" },
@@ -37,17 +37,17 @@ public class CacheEntryEstraPropsPolicyShould
 
         var context = ETagCacheContextFactory.CreateContext();
 
-        await new CacheEntryExtraPropsPolicy(extraProps).CacheETagAsync(context, default);
-        await new CacheEntryExtraPropsPolicy(extraProps2).CacheETagAsync(context, default);
+        await new CacheEntryExtraPropsPolicy(extraProps).CacheETagAsync(context, TestContext.Current.CancellationToken);
+        await new CacheEntryExtraPropsPolicy(extraProps2).CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        var expected = new Dictionary<string, object>
+        var expected = new Dictionary<string, object?>
         {
             { "prop1", "value1" },
             { "prop2", 33 },
             { "prop3", "value3" },
             { "prop4", 4 }
         };
-        context.CacheEntryExtraProps.Should().BeEquivalentTo(expected);
+        AssertHelpers.AssertDictionaryEquivalent(expected, context.CacheEntryExtraProps);
     }
 
     [Fact]
@@ -57,14 +57,13 @@ public class CacheEntryEstraPropsPolicyShould
         var extraPropsPolicy = new CacheEntryExtraPropsPolicy(new Dictionary<string, object>());
 
         var context = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeNotModifiedAsync(context, default);
+        await defaultPolicy.ServeNotModifiedAsync(context, TestContext.Current.CancellationToken);
 
         var context2 = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeNotModifiedAsync(context2, default);
-        await extraPropsPolicy.ServeNotModifiedAsync(context2, default);
+        await defaultPolicy.ServeNotModifiedAsync(context2, TestContext.Current.CancellationToken);
+        await extraPropsPolicy.ServeNotModifiedAsync(context2, TestContext.Current.CancellationToken);
 
-        context.Should().BeEquivalentTo(context2, o =>
-            o.Excluding(p => p.HttpContext));
+        AssertHelpers.AssertContextEqual(context, context2);
     }
 
     [Fact]
@@ -74,16 +73,12 @@ public class CacheEntryEstraPropsPolicyShould
         var extraPropsPolicy = new CacheEntryExtraPropsPolicy(new Dictionary<string, object>());
 
         var context = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeDownstreamResponseAsync(context, default);
+        await defaultPolicy.ServeDownstreamResponseAsync(context, TestContext.Current.CancellationToken);
 
         var context2 = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeDownstreamResponseAsync(context2, default);
-        await extraPropsPolicy.ServeDownstreamResponseAsync(context2, default);
+        await defaultPolicy.ServeDownstreamResponseAsync(context2, TestContext.Current.CancellationToken);
+        await extraPropsPolicy.ServeDownstreamResponseAsync(context2, TestContext.Current.CancellationToken);
 
-        context.Should().BeEquivalentTo(context2,
-            options => options
-                .Excluding(p => p.ResponseHeaders)
-                .Excluding(p => p.ETag)
-                .Excluding(p => p.HttpContext));
+        AssertHelpers.AssertContextEqual(context, context2, excludeResponseHeaders: true, excludeETag: true);
     }
 }

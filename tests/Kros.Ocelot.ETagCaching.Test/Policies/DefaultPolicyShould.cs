@@ -11,9 +11,9 @@ public class DefaultPolicyShould
         var context = ETagCacheContextFactory.CreateContext();
         var policy = DefaultPolicy.Instance;
 
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        context.EnableETagCache.Should().BeTrue();
+        Assert.True(context.EnableETagCache);
     }
 
     [Fact]
@@ -23,9 +23,9 @@ public class DefaultPolicyShould
         context.DownstreamRequest.Headers.Add("Cache-Control", "no-cache");
         var policy = DefaultPolicy.Instance;
 
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        context.EnableETagCache.Should().BeFalse();
+        Assert.False(context.EnableETagCache);
     }
 
     [Theory]
@@ -41,9 +41,9 @@ public class DefaultPolicyShould
         var context = ETagCacheContextFactory.CreateContext(httpMethod);
         var policy = DefaultPolicy.Instance;
 
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        context.AllowCacheResponseETag.Should().Be(allowed);
+        Assert.Equal(allowed, context.AllowCacheResponseETag);
     }
 
     [Fact]
@@ -52,10 +52,10 @@ public class DefaultPolicyShould
         var context = ETagCacheContextFactory.CreateContext();
         var policy = DefaultPolicy.Instance;
 
-        await policy.CacheETagAsync(context, default);
-        await policy.ServeDownstreamResponseAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
+        await policy.ServeDownstreamResponseAsync(context, TestContext.Current.CancellationToken);
 
-        context.AllowCacheResponseETag.Should().BeTrue();
+        Assert.True(context.AllowCacheResponseETag);
     }
 
     [Theory]
@@ -65,10 +65,10 @@ public class DefaultPolicyShould
         var context = ETagCacheContextFactory.CreateContext(statusCode: statusCode);
         var policy = DefaultPolicy.Instance;
 
-        await policy.CacheETagAsync(context, default);
-        await policy.ServeDownstreamResponseAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
+        await policy.ServeDownstreamResponseAsync(context, TestContext.Current.CancellationToken);
 
-        context.AllowCacheResponseETag.Should().BeFalse();
+        Assert.False(context.AllowCacheResponseETag);
     }
 
     [Fact]
@@ -78,10 +78,10 @@ public class DefaultPolicyShould
         context.DownstreamRequest.Headers.Add("Cache-Control", "no-store");
         var policy = DefaultPolicy.Instance;
 
-        await policy.CacheETagAsync(context, default);
-        await policy.ServeDownstreamResponseAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
+        await policy.ServeDownstreamResponseAsync(context, TestContext.Current.CancellationToken);
 
-        context.AllowCacheResponseETag.Should().BeFalse();
+        Assert.False(context.AllowCacheResponseETag);
     }
 
     [Fact]
@@ -90,9 +90,9 @@ public class DefaultPolicyShould
         var context = ETagCacheContextFactory.CreateContext();
         var policy = DefaultPolicy.Instance;
 
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        context.ETagExpirationTimeSpan.Should().Be(TimeSpan.FromSeconds(30));
+        Assert.Equal(TimeSpan.FromSeconds(30), context.ETagExpirationTimeSpan);
     }
 
     [Fact]
@@ -101,9 +101,9 @@ public class DefaultPolicyShould
         var context = ETagCacheContextFactory.CreateContext();
         var policy = DefaultPolicy.Instance;
 
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        context.CacheKey.Should().Be("get:http:localhost:/api/2/products:?skip=10&take=5");
+        Assert.Equal("get:http:localhost:/api/2/products:?skip=10&take=5", context.CacheKey);
     }
 
     [Fact]
@@ -113,9 +113,9 @@ public class DefaultPolicyShould
         var policy = DefaultPolicy.Instance;
         context.DownstreamRequest.Headers.Add("If-None-Match", "\"incommingetag\"");
 
-        await policy.ServeNotModifiedAsync(context, default);
+        await policy.ServeNotModifiedAsync(context, TestContext.Current.CancellationToken);
 
-        context.StatusCode.Should().Be(HttpStatusCode.NotModified);
+        Assert.Equal(HttpStatusCode.NotModified, context.StatusCode);
     }
 
     [Fact]
@@ -124,11 +124,11 @@ public class DefaultPolicyShould
         var context = ETagCacheContextFactory.CreateContext();
         var policy = DefaultPolicy.Instance;
 
-        await policy.ServeDownstreamResponseAsync(context, default);
+        await policy.ServeDownstreamResponseAsync(context, TestContext.Current.CancellationToken);
 
-        context.ResponseHeaders.Should().Contain("Cache-Control", "private");
-        context.ResponseHeaders.Should().ContainKey("ETag");
-        context.ResponseHeaders["ETag"].Should().NotBeNullOrEmpty();
+        AssertHelpers.AssertHeaderContains(context.ResponseHeaders, "Cache-Control", "private");
+        Assert.True(context.ResponseHeaders.ContainsKey("ETag"));
+        Assert.False(Microsoft.Extensions.Primitives.StringValues.IsNullOrEmpty(context.ResponseHeaders["ETag"]));
     }
 
     [Fact]
@@ -138,10 +138,10 @@ public class DefaultPolicyShould
         var policy = DefaultPolicy.Instance;
         context.DownstreamRequest.Headers.Add("If-None-Match", "\"incommingetag\"");
 
-        await policy.ServeNotModifiedAsync(context, default);
+        await policy.ServeNotModifiedAsync(context, TestContext.Current.CancellationToken);
 
-        context.CachedResponseHeaders.Should().Contain("Cache-Control", "private");
-        context.CachedResponseHeaders.Should().Contain("ETag", context.ETag.ToString());
+        AssertHelpers.AssertHeaderContains(context.CachedResponseHeaders, "Cache-Control", "private");
+        AssertHelpers.AssertHeaderContains(context.CachedResponseHeaders, "ETag", context.ETag.ToString());
     }
 
     [Fact]
@@ -150,9 +150,9 @@ public class DefaultPolicyShould
         var context = ETagCacheContextFactory.CreateContext();
         var policy = DefaultPolicy.Instance;
 
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        context.AllowNotModified.Should().BeFalse();
+        Assert.False(context.AllowNotModified);
     }
 
     [Fact]
@@ -162,10 +162,10 @@ public class DefaultPolicyShould
         var policy = DefaultPolicy.Instance;
         context.DownstreamRequest.Headers.Add("If-None-Match", "\"incommingetag\"");
 
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        context.AllowNotModified.Should().BeTrue();
-        context.ETag.ToString().Should().Be("\"incommingetag\"");
+        Assert.True(context.AllowNotModified);
+        Assert.Equal("\"incommingetag\"", context.ETag.ToString());
     }
 
     public static TheoryData<HttpStatusCode> Non200StatusCodes()

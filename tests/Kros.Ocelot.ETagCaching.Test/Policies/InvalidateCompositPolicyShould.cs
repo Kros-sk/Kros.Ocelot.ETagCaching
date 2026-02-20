@@ -12,9 +12,9 @@ public class InvalidateCompositPolicyShould
         var policy2 = new InvalidateDefaultPolicy(["products"]);
         var policy = new InvalidateCompositePolicy([policy1, policy2]);
 
-        await policy.InvalidateCacheAsync(context, default);
+        await policy.InvalidateCacheAsync(context, TestContext.Current.CancellationToken);
 
-        context.AllowCacheInvalidation.Should().BeTrue();
+        Assert.True(context.AllowCacheInvalidation);
     }
 
     [Fact]
@@ -25,9 +25,9 @@ public class InvalidateCompositPolicyShould
         var policy2 = new InvalidateDefaultPolicy(["products:{tenantId}", "products:{tenantId}:{id}"]);
         var policy = new InvalidateCompositePolicy([policy1, policy2]);
 
-        await policy.InvalidateCacheAsync(context, default);
+        await policy.InvalidateCacheAsync(context, TestContext.Current.CancellationToken);
 
-        context.AllowCacheInvalidation.Should().BeTrue();
-        context.Tags.Should().BeEquivalentTo(["products", "products:1", "products:1:2"]);
+        Assert.True(context.AllowCacheInvalidation);
+        Assert.Equal(["products", "products:1", "products:1:2"], context.Tags);
     }
 }

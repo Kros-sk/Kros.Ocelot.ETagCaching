@@ -16,9 +16,9 @@ public class CacheControlPolicyShould
         var policy = new CacheControlPolicy(cacheControl);
 
         var context = ETagCacheContextFactory.CreateContext();
-        await policy.ServeDownstreamResponseAsync(context, default);
+        await policy.ServeDownstreamResponseAsync(context, TestContext.Current.CancellationToken);
 
-        context.ResponseHeaders.Should().Contain(HeaderNames.CacheControl, cacheControl.ToString());
+        AssertHelpers.AssertHeaderContains(context.ResponseHeaders, HeaderNames.CacheControl, cacheControl.ToString());
     }
 
     [Fact]
@@ -32,9 +32,9 @@ public class CacheControlPolicyShould
         var policy = new CacheControlPolicy(cacheControl);
 
         var context = ETagCacheContextFactory.CreateContext();
-        await policy.ServeNotModifiedAsync(context, default);
+        await policy.ServeNotModifiedAsync(context, TestContext.Current.CancellationToken);
 
-        context.ResponseHeaders.Should().Contain(HeaderNames.CacheControl, cacheControl.ToString());
+        AssertHelpers.AssertHeaderContains(context.ResponseHeaders, HeaderNames.CacheControl, cacheControl.ToString());
     }
 
     [Fact]
@@ -49,13 +49,12 @@ public class CacheControlPolicyShould
         var defaultPolicy = DefaultPolicy.Instance;
 
         var context = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.CacheETagAsync(context, default);
+        await defaultPolicy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
         var context2 = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.CacheETagAsync(context2, default);
-        await policy.CacheETagAsync(context2, default);
+        await defaultPolicy.CacheETagAsync(context2, TestContext.Current.CancellationToken);
+        await policy.CacheETagAsync(context2, TestContext.Current.CancellationToken);
 
-        context.Should().BeEquivalentTo(context2, o =>
-            o.Excluding(p => p.HttpContext));
+        AssertHelpers.AssertContextEqual(context, context2);
     }
 }

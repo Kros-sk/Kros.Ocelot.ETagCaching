@@ -11,6 +11,6 @@ public class ETagCachingOptionsShould
 
         var action = () => options.AddPolicy(name, (_) => { });
 
-        action.Should().Throw<ArgumentException>();
+        Assert.Throws<ArgumentException>(action);
     }
 }
