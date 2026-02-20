@@ -391,10 +391,9 @@ public class ETagCachingMiddlewareShould
             string.Empty);
         context.Items.UpsertDownstreamResponse(response);
         context.Items.UpsertDownstreamRequest(new DownstreamRequest(new HttpRequestMessage(httpMethod, "http://localhost")));
-        context.Items.UpsertDownstreamRoute(new DownstreamRoute("products", null, null, null, [],
-            null, null, null, false, false, null, null, null,
-            false, null, null, null, [], [], [], [], [], false,
-            false, null, null, null, [], [], [], false, null, null, null));
+        context.Items.UpsertDownstreamRoute(new DownstreamRoute("products", null, null, null, [], null, null, null, null, null,
+            null, null, null, null, [], [], [], [], [], null, null, null, [], [], [], false, null, null, null,
+            HttpVersionPolicy.RequestVersionExact, null, null, null));
 
         return context;
     }
