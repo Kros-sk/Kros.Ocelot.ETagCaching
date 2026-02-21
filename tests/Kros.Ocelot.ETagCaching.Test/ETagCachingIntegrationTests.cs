@@ -12,7 +12,7 @@ public class ETagCachingIntegrationTests(DefaultWebApplicationFactory factory)
     {
         using var client = factory.CreateClient();
 
-        using var response = await client.GetAsync("/1/products", TestContext.Current.CancellationToken);
+        using var response = await client.GetAsync("/1/products/", TestContext.Current.CancellationToken);
 
         response.EnsureSuccessStatusCode();
         Assert.Contains("ETag", response.Headers.Select(h => h.Key));
@@ -36,7 +36,7 @@ public class ETagCachingIntegrationTests(DefaultWebApplicationFactory factory)
     {
         using var client = factory.CreateClient();
 
-        using var response = await client.GetAsync("/1/products", TestContext.Current.CancellationToken);
+        using var response = await client.GetAsync("/1/products/", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
@@ -57,7 +57,7 @@ public class ETagCachingIntegrationTests(DefaultWebApplicationFactory factory)
     {
         using var client = factory.CreateClient();
 
-        using var response = await client.GetAsync("/1/products", TestContext.Current.CancellationToken);
+        using var response = await client.GetAsync("/1/products/", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -69,12 +69,12 @@ public class ETagCachingIntegrationTests(DefaultWebApplicationFactory factory)
     {
         using var client = factory.CreateClient();
 
-        using var response = await client.GetAsync("/1/products", TestContext.Current.CancellationToken);
+        using var response = await client.GetAsync("/1/products/", TestContext.Current.CancellationToken);
 
         response.EnsureSuccessStatusCode();
         var etag = response.Headers.ETag!.Tag;
 
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/1/products");
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/1/products/");
         request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue(etag));
 
         using var notModifiedResponse = await client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -103,7 +103,7 @@ public class ETagCachingIntegrationTests(DefaultWebApplicationFactory factory)
 
         createResponse.EnsureSuccessStatusCode();
 
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/2/products");
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/2/products/");
         request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue(etag));
 
         var notModifiedResponse = await client.SendAsync(request, TestContext.Current.CancellationToken);
