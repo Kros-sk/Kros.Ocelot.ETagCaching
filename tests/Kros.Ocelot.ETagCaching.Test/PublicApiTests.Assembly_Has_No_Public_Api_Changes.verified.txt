@@ -1,6 +1,6 @@
 ﻿[assembly: System.Reflection.AssemblyMetadata("RepositoryUrl", "https://github.com/Kros-sk/Kros.Ocelot.ETagCaching")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Kros.Ocelot.ETagCaching.Test")]
-[assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v8.0", FrameworkDisplayName=".NET 8.0")]
+[assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v10.0", FrameworkDisplayName=".NET 10.0")]
 namespace Kros.Ocelot.ETagCaching
 {
     public sealed class ETagCacheContext
@@ -34,7 +34,7 @@ namespace Kros.Ocelot.ETagCaching
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder AddPolicy<TPolicy>()
             where TPolicy : Kros.Ocelot.ETagCaching.IETagCachePolicy, new () { }
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder CacheControl(Microsoft.Net.Http.Headers.CacheControlHeaderValue cacheControl) { }
-        public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder CacheEntryExtraProp(System.Action<System.Collections.Generic.Dictionary<string, object>> extraProps) { }
+        public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder CacheEntryExtraProp(System.Action<System.Collections.Generic.Dictionary<string, object?>> extraProps) { }
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder CacheKey(System.Func<Ocelot.Request.Middleware.DownstreamRequest, string> keyGenerator) { }
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder ETag(System.Func<Kros.Ocelot.ETagCaching.ETagCacheContext, Microsoft.Net.Http.Headers.EntityTagHeaderValue> etagGenerator) { }
         public Kros.Ocelot.ETagCaching.ETagCachePolicyBuilder Expire(System.TimeSpan expiration) { }
