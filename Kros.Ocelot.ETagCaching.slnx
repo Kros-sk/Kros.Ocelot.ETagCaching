@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/demo/">
+    <Project Path="demo/EShop.Gateway/EShop.Gateway.csproj" />
+    <Project Path="demo/EShop.Products/EShop.Products.csproj" />
+  </Folder>
+  <Folder Name="/Solution items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Packages.props" />
+    <File Path="README.md" />
+    <File Path="src/Directory.Build.props" />
+  </Folder>
+  <Project Path="build/_build.csproj">
+    <Build Project="false" />
+  </Project>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+  <Project Path="src/Kros.Ocelot.ETagCaching/Kros.Ocelot.ETagCaching.csproj" />
+  <Project Path="tests/Kros.Ocelot.ETagCaching.Test/Kros.Ocelot.ETagCaching.Test.csproj" />
+</Solution>
