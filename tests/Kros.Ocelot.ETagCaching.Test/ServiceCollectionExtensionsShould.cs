@@ -96,7 +96,7 @@ public class ServiceCollectionExtensionsShould
         var context = InvalidateCacheContextFactory.CreateContext();
         await policy.InvalidateCacheAsync(context, TestContext.Current.CancellationToken);
 
-        Assert.Equal(["product:1", "product:1:2"], context.Tags);
+        AssertHelpers.AssertHashSetIsEquivalent(["product:1", "product:1:2"], context.Tags);
     }
 
     [Fact]

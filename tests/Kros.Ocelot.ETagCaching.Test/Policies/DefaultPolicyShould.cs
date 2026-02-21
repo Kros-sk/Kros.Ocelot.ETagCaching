@@ -127,8 +127,7 @@ public class DefaultPolicyShould
         await policy.ServeDownstreamResponseAsync(context, TestContext.Current.CancellationToken);
 
         AssertHelpers.AssertHeaderContains(context.ResponseHeaders, "Cache-Control", "private");
-        Assert.True(context.ResponseHeaders.ContainsKey("ETag"));
-        Assert.False(Microsoft.Extensions.Primitives.StringValues.IsNullOrEmpty(context.ResponseHeaders["ETag"]));
+        AssertHelpers.AssertHeaderExists(context.ResponseHeaders, "ETag");
     }
 
     [Fact]

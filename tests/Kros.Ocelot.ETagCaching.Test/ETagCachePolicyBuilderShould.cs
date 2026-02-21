@@ -34,7 +34,7 @@ public class ETagCachePolicyBuilderShould
         Assert.Equal(TimeSpan.FromMinutes(10), context.ETagExpirationTimeSpan);
         AssertHelpers.AssertHeaderContains(context.ResponseHeaders, HeaderNames.CacheControl, "max-age=600, private");
         Assert.Equal("cacheKey", context.CacheKey);
-        Assert.Equal(["tag1:1", "tag2:2"], context.Tags);
+        AssertHelpers.AssertHashSetIsEquivalent(["tag1:1", "tag2:2"], context.Tags);
         Assert.Equal((HttpStatusCode)222, context.StatusCode);
         Assert.True(context.CacheEntryExtraProps.TryGetValue("key1", out var value));
         Assert.Equal("value1", value);

@@ -12,7 +12,7 @@ public class TagTemplatesPolicyShould
 
         await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        Assert.Equal(["tag1:1", "tag2:2"], context.Tags);
+        AssertHelpers.AssertHashSetIsEquivalent(["tag1:1", "tag2:2"], context.Tags);
     }
 
     [Fact]

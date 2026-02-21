@@ -30,6 +30,6 @@ public class InvalidateDefaultPolicyShould
 
         await policy.InvalidateCacheAsync(context, TestContext.Current.CancellationToken);
 
-        Assert.Equal(["products:1", "products:1:2"], context.Tags);
+        AssertHelpers.AssertHashSetIsEquivalent(["products:1", "products:1:2"], context.Tags);
     }
 }

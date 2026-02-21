@@ -83,7 +83,7 @@ public class CompositePolicyShould
 
     private class HelperPolicy(
         Action<ETagCacheContext> cacheEtag,
-        Action<ETagCacheContext> serveNoMofied,
+        Action<ETagCacheContext> serveNoModified,
         Action<ETagCacheContext> serveDownstreamResponse) : IETagCachePolicy
     {
         public ValueTask CacheETagAsync(ETagCacheContext context, CancellationToken cancellationToken)
@@ -94,7 +94,7 @@ public class CompositePolicyShould
 
         public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
         {
-            serveNoMofied(context);
+            serveNoModified(context);
             return ValueTask.CompletedTask;
         }
 

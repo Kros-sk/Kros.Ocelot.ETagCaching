@@ -1,10 +1,12 @@
-﻿using System.Reflection;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace Kros.Ocelot.ETagCaching.Test;
 
 internal static class AssertHelpers
 {
+    public static void AssertHashSetIsEquivalent(IEnumerable<string> expected, HashSet<string> actual)
+        => Assert.Equivalent(expected, actual, strict: true);
+
     public static void AssertContextEqual(
         ETagCacheContext expected,
         ETagCacheContext actual,
@@ -16,7 +18,7 @@ internal static class AssertHelpers
         Assert.Equal(expected.AllowNotModified, actual.AllowNotModified);
         Assert.Equal(expected.ETagExpirationTimeSpan, actual.ETagExpirationTimeSpan);
         Assert.Equal(expected.StatusCode, actual.StatusCode);
-        Assert.Equal(expected.Tags, actual.Tags);
+        Assert.Equivalent(expected.Tags, actual.Tags, strict: true);
 
         AssertDictionaryEquivalent(expected.CacheEntryExtraProps, actual.CacheEntryExtraProps);
 
@@ -32,13 +34,19 @@ internal static class AssertHelpers
             Assert.Equal(expected.ETag, actual.ETag);
         }
 
-        Assert.Equal(GetCacheKey(expected), GetCacheKey(actual));
+        Assert.Equal(expected.CacheKey, actual.CacheKey);
     }
 
     public static void AssertHeaderContains(HeaderDictionary headers, string key, string value)
     {
         Assert.True(headers.TryGetValue(key, out var values));
         Assert.Contains<string>(value, values);
+    }
+
+    public static void AssertHeaderExists(HeaderDictionary headers, string key)
+    {
+        Assert.True(headers.TryGetValue(key, out var values));
+        Assert.False(Microsoft.Extensions.Primitives.StringValues.IsNullOrEmpty(values));
     }
 
     public static void AssertDictionaryEquivalent<TKey, TValue>(
@@ -62,11 +70,5 @@ internal static class AssertHelpers
             Assert.True(actual.TryGetValue(key, out var actualValues));
             Assert.Equal(expected[key], actualValues);
         }
-    }
-
-    private static string? GetCacheKey(ETagCacheContext context)
-    {
-        var property = typeof(ETagCacheContext).GetProperty("CacheKey", BindingFlags.Instance | BindingFlags.NonPublic);
-        return property?.GetValue(context) as string;
     }
 }

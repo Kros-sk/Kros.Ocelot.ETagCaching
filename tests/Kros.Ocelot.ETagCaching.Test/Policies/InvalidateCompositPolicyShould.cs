@@ -28,6 +28,6 @@ public class InvalidateCompositPolicyShould
         await policy.InvalidateCacheAsync(context, TestContext.Current.CancellationToken);
 
         Assert.True(context.AllowCacheInvalidation);
-        Assert.Equal(["products", "products:1", "products:1:2"], context.Tags);
+        AssertHelpers.AssertHashSetIsEquivalent(["products", "products:1", "products:1:2"], context.Tags);
     }
 }
