@@ -124,9 +124,9 @@ public sealed class ETagCachePolicyBuilder
     /// Add a policy which add extra properties to the cache entry.
     /// </summary>
     /// <param name="extraProps">Configure extra properties.</param>
-    public ETagCachePolicyBuilder CacheEntryExtraProp(Action<Dictionary<string, object>> extraProps)
+    public ETagCachePolicyBuilder CacheEntryExtraProp(Action<Dictionary<string, object?>> extraProps)
     {
-        var props = new Dictionary<string, object>();
+        Dictionary<string, object?> props = [];
         extraProps(props);
         AddPolicy(new CacheEntryExtraPropsPolicy(props));
 

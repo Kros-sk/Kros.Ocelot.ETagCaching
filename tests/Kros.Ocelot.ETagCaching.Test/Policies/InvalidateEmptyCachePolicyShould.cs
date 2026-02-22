@@ -10,8 +10,8 @@ public class InvalidateEmptyCachePolicyShould
         var context = InvalidateCacheContextFactory.CreateContext();
         var policy = new InvalidateEmptyPolicy();
 
-        await policy.InvalidateCacheAsync(context, default);
+        await policy.InvalidateCacheAsync(context, TestContext.Current.CancellationToken);
 
-        context.AllowCacheInvalidation.Should().BeFalse();
+        Assert.False(context.AllowCacheInvalidation);
     }
 }

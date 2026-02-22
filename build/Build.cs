@@ -16,7 +16,7 @@ partial class Build : NukeBuild
 {
     public static int Main() => Execute<Build>(x => x.Compile);
 
-    [Solution]
+    [Solution("Kros.Ocelot.ETagCaching.slnx")]
     readonly Solution Solution;
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]

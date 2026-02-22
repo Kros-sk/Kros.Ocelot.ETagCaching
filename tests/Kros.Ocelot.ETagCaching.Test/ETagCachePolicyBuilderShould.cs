@@ -26,17 +26,18 @@ public class ETagCachePolicyBuilderShould
         var policy = builder.Build();
         var context = ETagCacheContextFactory.CreateContext();
 
-        await policy.CacheETagAsync(context, default);
-        await policy.ServeDownstreamResponseAsync(context, default);
-        await policy.ServeNotModifiedAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
+        await policy.ServeDownstreamResponseAsync(context, TestContext.Current.CancellationToken);
+        await policy.ServeNotModifiedAsync(context, TestContext.Current.CancellationToken);
 
-        context.ETag.Should().Be(new EntityTagHeaderValue("\"123\""));
-        context.ETagExpirationTimeSpan.Should().Be(TimeSpan.FromMinutes(10));
-        context.ResponseHeaders.Should().Contain(HeaderNames.CacheControl, "max-age=600, private");
-        context.CacheKey.Should().Be("cacheKey");
-        context.Tags.Should().BeEquivalentTo(["tag1:1", "tag2:2"]);
-        context.StatusCode.Should().Be((HttpStatusCode)222);
-        context.CacheEntryExtraProps.Should().Contain("key1", "value1");
+        Assert.Equal(new EntityTagHeaderValue("\"123\""), context.ETag);
+        Assert.Equal(TimeSpan.FromMinutes(10), context.ETagExpirationTimeSpan);
+        AssertHelpers.AssertHeaderContains(context.ResponseHeaders, HeaderNames.CacheControl, "max-age=600, private");
+        Assert.Equal("cacheKey", context.CacheKey);
+        AssertHelpers.AssertHashSetIsEquivalent(["tag1:1", "tag2:2"], context.Tags);
+        Assert.Equal((HttpStatusCode)222, context.StatusCode);
+        Assert.True(context.CacheEntryExtraProps.TryGetValue("key1", out var value));
+        Assert.Equal("value1", value);
     }
 
     [Fact]
@@ -46,7 +47,7 @@ public class ETagCachePolicyBuilderShould
 
         var policy = builder.Build();
 
-        policy.Should().Be(DefaultPolicy.Instance);
+        Assert.Same(DefaultPolicy.Instance, policy);
     }
 
     [Fact]
@@ -56,7 +57,7 @@ public class ETagCachePolicyBuilderShould
 
         var policy = builder.Build();
 
-        policy.Should().Be(EmptyPolicy.Instance);
+        Assert.Same(EmptyPolicy.Instance, policy);
     }
 
     [Fact]
@@ -69,9 +70,9 @@ public class ETagCachePolicyBuilderShould
         var policy = builder.Build();
         var context = ETagCacheContextFactory.CreateContext();
 
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        context.CacheKey.Should().Be("custom");
+        Assert.Equal("custom", context.CacheKey);
     }
 
     private class CustomPolicy : IETagCachePolicy
@@ -101,9 +102,9 @@ public class ETagCachePolicyBuilderShould
             httpMethod: "POST",
             upstreamPath: "/api/1/orders");
 
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        context.CacheKey.Should().Be("upstream:POST:/api/1/orders");
+        Assert.Equal("upstream:POST:/api/1/orders", context.CacheKey);
     }
 
     [Fact]
@@ -119,10 +120,10 @@ public class ETagCachePolicyBuilderShould
             upstreamPath: "/api/1/products",
             upstreamQuery: "?category=electronics");
 
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
         var expectedKey = "get:http:localhost:5000:/api/1/products:?category=electronics";
-        context.CacheKey.Should().Be(expectedKey);
+        Assert.Equal(expectedKey, context.CacheKey);
     }
 
     [Fact]
@@ -138,11 +139,11 @@ public class ETagCachePolicyBuilderShould
         var context = ETagCacheContextFactory.CreateContext(
             upstreamPath: "/api/1/users");
 
-        await policy.CacheETagAsync(context, default);
-        await policy.ServeNotModifiedAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
+        await policy.ServeNotModifiedAsync(context, TestContext.Current.CancellationToken);
 
-        context.CacheKey.Should().Be("chain:/api/1/users");
-        context.ETagExpirationTimeSpan.Should().Be(TimeSpan.FromMinutes(5));
-        context.StatusCode.Should().Be(HttpStatusCode.NotModified);
+        Assert.Equal("chain:/api/1/users", context.CacheKey);
+        Assert.Equal(TimeSpan.FromMinutes(5), context.ETagExpirationTimeSpan);
+        Assert.Equal(HttpStatusCode.NotModified, context.StatusCode);
     }
 }

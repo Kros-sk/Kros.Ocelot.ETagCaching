@@ -10,9 +10,9 @@ public class ExpirationPolicyShould
         var policy = new ExpirationPolicy(TimeSpan.FromMinutes(5));
         var context = ETagCacheContextFactory.CreateContext();
 
-        await policy.CacheETagAsync(context, default);
+        await policy.CacheETagAsync(context, TestContext.Current.CancellationToken);
 
-        context.ETagExpirationTimeSpan.Should().Be(TimeSpan.FromMinutes(5));
+        Assert.Equal(TimeSpan.FromMinutes(5), context.ETagExpirationTimeSpan);
     }
 
     [Fact]
@@ -22,14 +22,13 @@ public class ExpirationPolicyShould
         var extraPropsPolicy = new ExpirationPolicy(TimeSpan.FromMinutes(5));
 
         var context = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeNotModifiedAsync(context, default);
+        await defaultPolicy.ServeNotModifiedAsync(context, TestContext.Current.CancellationToken);
 
         var context2 = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeNotModifiedAsync(context2, default);
-        await extraPropsPolicy.ServeNotModifiedAsync(context2, default);
+        await defaultPolicy.ServeNotModifiedAsync(context2, TestContext.Current.CancellationToken);
+        await extraPropsPolicy.ServeNotModifiedAsync(context2, TestContext.Current.CancellationToken);
 
-        context.Should().BeEquivalentTo(context2,
-            o => o.Excluding(p => p.HttpContext));
+        AssertHelpers.AssertContextEqual(context, context2);
     }
 
     [Fact]
@@ -39,16 +38,12 @@ public class ExpirationPolicyShould
         var extraPropsPolicy = new ExpirationPolicy(TimeSpan.FromMinutes(5));
 
         var context = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeDownstreamResponseAsync(context, default);
+        await defaultPolicy.ServeDownstreamResponseAsync(context, TestContext.Current.CancellationToken);
 
         var context2 = ETagCacheContextFactory.CreateContext();
-        await defaultPolicy.ServeDownstreamResponseAsync(context2, default);
-        await extraPropsPolicy.ServeDownstreamResponseAsync(context2, default);
+        await defaultPolicy.ServeDownstreamResponseAsync(context2, TestContext.Current.CancellationToken);
+        await extraPropsPolicy.ServeDownstreamResponseAsync(context2, TestContext.Current.CancellationToken);
 
-        context.Should().BeEquivalentTo(context2,
-            options => options
-                .Excluding(p => p.ResponseHeaders)
-                .Excluding(p => p.ETag)
-                .Excluding(p => p.HttpContext));
+        AssertHelpers.AssertContextEqual(context, context2, excludeResponseHeaders: true, excludeETag: true);
     }
 }

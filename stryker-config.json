@@ -11,7 +11,7 @@
     "solution": null,
     "target-framework": null,
     "project": null,
-    "coverage-analysis": "perTest",
+    "coverage-analysis": "off",
     "disable-bail": false,
     "disable-mix-mutants": false,
     "thresholds": {

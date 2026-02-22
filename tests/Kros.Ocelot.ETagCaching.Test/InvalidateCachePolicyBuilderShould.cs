@@ -10,7 +10,7 @@ public class InvalidateCachePolicyBuilderShould
         var builder = new InvalidateCachePolicyBuilder();
         var policy = builder.Build();
 
-        policy.Should().BeOfType<InvalidateEmptyPolicy>();
+        Assert.IsType<InvalidateEmptyPolicy>(policy);
     }
 
     [Fact]
@@ -19,7 +19,7 @@ public class InvalidateCachePolicyBuilderShould
         var builder = new InvalidateCachePolicyBuilder();
         var policy = builder.TagTemplates("products").Build();
 
-        policy.Should().BeOfType<InvalidateDefaultPolicy>();
+        Assert.IsType<InvalidateDefaultPolicy>(policy);
     }
 
     [Fact]
@@ -31,7 +31,7 @@ public class InvalidateCachePolicyBuilderShould
             .AddPolicy<FakePolicy>()
             .Build();
 
-        policy.Should().BeOfType<InvalidateCompositePolicy>();
+        Assert.IsType<InvalidateCompositePolicy>(policy);
     }
 
     private class FakePolicy : IInvalidateCachePolicy
