@@ -14,7 +14,7 @@ internal sealed class CacheControlPolicy(CacheControlHeaderValue cacheControl) :
 
     public ValueTask ServeNotModifiedAsync(ETagCacheContext context, CancellationToken cancellationToken)
     {
-        context.ResponseHeaders[HeaderNames.CacheControl] = _cacheControl.ToString();
+        context.CachedResponseHeaders[HeaderNames.CacheControl] = _cacheControl.ToString();
 
         return ValueTask.CompletedTask;
     }

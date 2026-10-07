@@ -107,6 +107,29 @@ public class ETagCachingMiddlewareShould
     }
 
     [Fact]
+    public async Task ServeCacheControlHeaderFromPolicyOnNotModifiedResponse()
+    {
+        var cacheEntry = new ETagCacheEntry(new EntityTagHeaderValue("\"123\""), []);
+        var store = Store.Create(cacheEntry);
+        var middleware = new ETagCachingMiddleware(
+            CreateRoutes([new("products", "productsPolicy")]),
+            store,
+            Options.Create(ETagCachingOptions.Create()
+                .AddPolicy("productsPolicy", b => b.CacheControl(new() { MaxAge = TimeSpan.FromDays(4) }))),
+            NullLogger<ETagCachingMiddleware>.Instance);
+
+        var context = CreateHttpContext();
+        context.Items.UpsertDownstreamRequest(CreateRequest([("If-None-Match", "\"123\"")]));
+
+        await middleware.InvokeAsync(context, () => Task.CompletedTask);
+
+        var response = context.Items.DownstreamResponse();
+        Assert.Equal(System.Net.HttpStatusCode.NotModified, response.StatusCode);
+        Assert.Contains(response.Headers, header =>
+            header.Key == "Cache-Control" && header.Values.Contains("max-age=345600"));
+    }
+
+    [Fact]
     public async Task DoNotServeNotModifiedResponseIfPolicyDoesNotAllowIt()
     {
         var cacheEntry = new ETagCacheEntry(new EntityTagHeaderValue("\"123\""), []);

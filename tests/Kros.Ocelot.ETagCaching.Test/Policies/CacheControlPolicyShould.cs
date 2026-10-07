@@ -22,7 +22,7 @@ public class CacheControlPolicyShould
     }
 
     [Fact]
-    public async Task AddCacheControlHeaderToResponse_WhenServeNotModifiedAsyncWasCall()
+    public async Task AddCacheControlHeaderToNotModifiedResponse_WhenServeNotModifiedAsyncWasCall()
     {
         var cacheControl = new CacheControlHeaderValue
         {
@@ -34,7 +34,7 @@ public class CacheControlPolicyShould
         var context = ETagCacheContextFactory.CreateContext();
         await policy.ServeNotModifiedAsync(context, TestContext.Current.CancellationToken);
 
-        AssertHelpers.AssertHeaderContains(context.ResponseHeaders, HeaderNames.CacheControl, cacheControl.ToString());
+        AssertHelpers.AssertHeaderContains(context.CachedResponseHeaders, HeaderNames.CacheControl, cacheControl.ToString());
     }
 
     [Fact]
